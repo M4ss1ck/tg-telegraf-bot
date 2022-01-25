@@ -1,4 +1,24 @@
 import { Telegraf, Markup } from "telegraf";
+import { Parser } from "expr-eval";
+
+const parser = new Parser({
+  operators: {
+    // These default to true, but are included to be explicit
+    add: true,
+    concatenate: true,
+    conditional: true,
+    divide: true,
+    factorial: true,
+    multiply: true,
+    power: true,
+    remainder: true,
+    subtract: true,
+    logical: true,
+    comparison: true,
+    in: true,
+    assignment: true,
+  },
+});
 
 const my_id = process.env.ADMIN_ID;
 
@@ -19,7 +39,10 @@ bot.command(["group", "promo", "spam"], (ctx) => {
   ]);
   const text =
     "Sea usted bienvenid@ a la comunidad de <b>Wasting Time</b>. Donde podrá pasar tiempo con sus amigos, compartir memes, jugar a encontrar el lobo y probablemente morir en el intento.";
-  ctx.replyWithHTML(text, keyboard);
+
+  ctx
+    .replyWithPhoto({ source: "./images/grupo.webp" })
+    .then(() => ctx.replyWithHTML(text, keyboard));
 });
 
 bot.command("ping", (ctx) => {
@@ -36,16 +59,20 @@ bot.command("me", async (ctx) => {
   const tiempo = elapsedTime(inicio);
   const botInfo = JSON.stringify(ctx.botInfo)
     .replace(/"/g, " ")
-    .replace(/,/g, ",\n");
+    .replace(/,/g, ",\n")
+    .replace(/{/g, "\n {");
   const chatInfo = JSON.stringify(ctx.chat)
     .replace(/"/g, " ")
-    .replace(/,/g, ",\n");
+    .replace(/,/g, ",\n")
+    .replace(/{/g, "\n {");
   const userInfo = JSON.stringify(ctx.from)
     .replace(/"/g, " ")
-    .replace(/,/g, ",\n");
+    .replace(/,/g, ",\n")
+    .replace(/{/g, "\n {");
   const messageInfo = JSON.stringify(ctx.message)
     .replace(/"/g, " ")
-    .replace(/,/g, ",\n");
+    .replace(/,/g, ",\n")
+    .replace(/{/g, "\n {");
   const text =
     "Bot info: \n" +
     botInfo +
@@ -66,6 +93,34 @@ bot.command("me", async (ctx) => {
   } else {
     await ctx.replyWithHTML(text.substring(0, 4096));
     await ctx.replyWithHTML(text.substring(4096, text.length));
+  }
+});
+
+bot.command("info", async (ctx) => {
+  //console.log(ctx);
+  if (ctx.message.reply_to_message) {
+    const msgInfo = JSON.stringify(ctx.message.reply_to_message)
+      .replace(/"/g, " ")
+      .replace(/,/g, ",\n")
+      .replace(/{/g, "\n {");
+
+    const text = "Información del mensaje:\n" + msgInfo;
+    if (text.length < 4096) {
+      ctx.replyWithHTML(text, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
+      });
+    } else {
+      await ctx.replyWithHTML(text.substring(0, 4096), {
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
+      });
+      await ctx.replyWithHTML(text.substring(4096, text.length), {
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
+      });
+    }
+  } else {
+    ctx.replyWithHTML(
+      "<code>/info</code> se usa respondiendo un mensaje. Tal vez prefieras usar <code>/me</code>"
+    );
   }
 });
 
@@ -123,38 +178,63 @@ bot.on("inline_query", async (ctx) => {
         Math.random() * 100
       )}%`,
     },
-    {
-      title: `Calcular ${query}`,
-      description: `Calculadora que usa supercomputadoras de terceros: NASA, MIT...`,
-      message_text: `${query} = ${parser.parse(query).simplify()}`,
-    },
   ];
-
-  const { results } = await response.json();
-  const recipes = results
-    // @ts-ignore
-    .filter(({ thumbnail }) => thumbnail)
-    // @ts-ignore
-    .map(({ title, href, thumbnail }) => ({
-      type: "article",
-      id: thumbnail,
-      title: title,
-      description: title,
-      thumb_url: thumbnail,
-      input_message_content: {
-        message_text: title,
-      },
-      reply_markup: Markup.inlineKeyboard([
-        Markup.button.url("Go to recipe", href),
-      ]),
-    }));
-  return await ctx.answerInlineQuery(recipes);
+  const markup = Markup.inlineKeyboard([
+    [Markup.button.callback("Borrar", "del")],
+  ]);
+  const recipes = response.map(({ title, description, message_text }) => ({
+    type: "article",
+    id: title,
+    title: title,
+    description: description,
+    //thumb_url: thumbnail,
+    input_message_content: {
+      message_text: message_text,
+    },
+    reply_markup: markup,
+  }));
+  //console.log(recipes);
+  return await ctx.answerInlineQuery(recipes, { cache_time: 1 });
 });
 
 bot.on("chosen_inline_result", ({ chosenInlineResult }) => {
   console.log("chosen inline result", chosenInlineResult);
 });
 
+bot.command(["c", "calc"], (ctx) => {
+  const index = ctx.message.entities[0].length + 1;
+  const math = ctx.message.text.substring(index);
+  console.log(math);
+  if (math === "") {
+    ctx.replyWithHTML(
+      `Debe introducir una expresión matemática.\nEjemplos: <pre>/calc 2+3^6</pre>\n<pre>/calc PI^4</pre>\n<pre>/calc 25346*3456/32</pre>`,
+      {
+        reply_to_message_id: ctx.message.message_id,
+      }
+    );
+  } else {
+    try {
+      let result = parser.parse(math).simplify();
+      console.log("El resultado de " + math + " es " + result);
+      ctx.replyWithHTML(`<pre>${result}</pre>`, {
+        reply_to_message_id: ctx.message.message_id,
+      });
+    } catch (error) {
+      const errorMessage = JSON.stringify(error)
+        .replace(/"/g, " ")
+        .replace(/,/g, ",\n")
+        .replace(/{/g, "\n {");
+      ctx.replyWithHTML(`<pre>${errorMessage}</pre>`, {
+        reply_to_message_id: ctx.message.message_id,
+      });
+    }
+  }
+});
+bot.command(["start", "jelou"], (ctx) => {
+  ctx.replyWithHTML(
+    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía /ayuda para ver algunas opciones`
+  );
+});
 bot.launch();
 console.log("BOT INICIADO");
 
