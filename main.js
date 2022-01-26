@@ -131,7 +131,7 @@ bot.command(["jaja", "jajaja", "porn"], (ctx) => {
     ctx.replyWithHTML(
       `<a href="tg://user?id=${ctx.message.from.id}"> ${ctx.message.from.first_name}</a>, el comando se usa respondiendo un mensaje`
     );
-  } else if (ctx.message.reply_to_message.from.id == my_id) {
+  } else if (ctx.message.reply_to_message.from.id.toString() == my_id) {
     ctx
       .replyWithVoice(
         { source: "./audio/risas.ogg" },
@@ -235,6 +235,27 @@ bot.command(["start", "jelou"], (ctx) => {
     `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía /ayuda para ver algunas opciones`
   );
 });
+
+bot.command("say", (ctx) => {
+  const text = ctx.message.text.substring(5);
+  console.log(text.length);
+  if (text.length > 0) {
+    ctx.replyWithHTML(text);
+  } else {
+    ctx.replyWithHTML(
+      "Escribe algo después del comando y yo lo repetiré\nEjemplo: <code>/say Hola</code>"
+    );
+  }
+});
+
+bot.command("quit", (ctx) => {
+  if (ctx.message.from.id.toString() == my_id) {
+    ctx
+      .reply("Me fui 👋")
+      .then(() => ctx.telegram.leaveChat(ctx.message.chat.id));
+  }
+});
+
 bot.launch();
 console.log("BOT INICIADO");
 
