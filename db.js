@@ -77,10 +77,10 @@ async function exportTable(nombre) {
 // funcion para importar una tabla CSV a la BD
 async function importTable(name, data) {
   const path = process.cwd();
-  fs.writeFileSync(`${path}\\${name}.csv`, data, "utf8");
-
+  fs.writeFileSync(`${path}/${name}.csv`, data, "utf8");
+  console.log(`${name}.csv creado con url ${path}/${name}.csv`);
   query(
-    `COPY ${name} FROM '${path}\\${name}.csv' DELIMITER ',' CSV HEADER`,
+    `COPY ${name} FROM '${path}/${name}.csv' DELIMITER ',' CSV HEADER`,
     [],
     (err, res) => {
       if (err) {
