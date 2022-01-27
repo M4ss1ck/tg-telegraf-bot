@@ -525,32 +525,22 @@ bot.on("message", (ctx) => {
       console.log("[ERROR UPDATING]");
       console.log(err.stack);
     } else {
-      //console.log(res.rows);
       res.rows.map((trigger) => {
-        //console.log(trigger.filtro, "\n", trigger.respuesta[1]);
         const regex = new RegExp("^" + trigger.filtro + "$", "i");
-        // let caption =
-        //   trigger.respuesta[1] === undefined ? null : trigger.respuesta[1];
-
         const respuesta = JSON.parse(trigger.respuesta);
         const caption = respuesta.caption ? respuesta.caption : null;
-        // hacer que el filtro solo funcione en el chat que se creó
-        //console.log("Chat BD ", trigger.chat, "\nChat actual ", chat_id);
         if (trigger.chat === ctx.chat.id.toString()) {
           if (
-            ctx.message.text.match(regex) ||
-            ctx.message.caption?.match(regex)
+            (ctx.message.text && ctx.message.text.match(regex)) ||
+            (ctx.message.caption && ctx.message.caption.match(regex))
           ) {
-            //console.log("TIPO DE FILTRO\n", trigger.tipo);
             if (trigger.tipo === "text") {
-              // parse entities into message text
               const entities = respuesta.entities || [];
               console.log("Entities ", entities);
               let texto_final = respuesta.text;
               entities.map((entity) => {
                 const { offset, length, type } = entity;
                 let tag;
-                //const tag = type === "text_link" ? "a" : type;
                 switch (type) {
                   case "text_link":
                     tag = "a";
@@ -593,48 +583,49 @@ bot.on("message", (ctx) => {
                 reply_to_message_id: ctx.message.message_id,
               });
             } else if (trigger.tipo === "photo") {
-              ctx.replyWithPhoto({
-                source: respuesta.photo[respuesta.photo.length - 1].file_id,
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithPhoto(
+                  respuesta.photo[respuesta.photo.length - 1].file_id,
+                  {
+                    caption: caption,
+                    reply_to_message_id: ctx.message.message_id,
+                  }
+                )
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             } else if (trigger.tipo === "sticker") {
-              ctx.replyWithSticker({
-                source: respuesta.sticker.file_id,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithSticker(respuesta.sticker.file_id, {
+                  reply_to_message_id: ctx.message.message_id,
+                })
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             } else if (trigger.tipo === "voice") {
-              bot.sendVoice(chat_id, respuesta.voice.file_id, {
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
-              ctx.replyWithVoice({
-                source: respuesta.voice.file_id,
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithVoice(respuesta.voice.file_id, {
+                  caption: caption,
+                  reply_to_message_id: ctx.message.message_id,
+                })
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             } else if (trigger.tipo === "video") {
-              ctx.replyWithVideo({
-                source: respuesta.video.file_id,
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithVideo(respuesta.video.file_id, {
+                  caption: caption,
+                  reply_to_message_id: ctx.message.message_id,
+                })
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             } else if (trigger.tipo === "audio") {
-              ctx.replyWithAudio({
-                source: respuesta.audio.file_id,
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithAudio(respuesta.audio.file_id, {
+                  caption: caption,
+                  reply_to_message_id: ctx.message.message_id,
+                })
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             } else {
-              bot.sendDocument(chat_id, respuesta, {
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
-              ctx.replyWithDocument({
-                source: respuesta.document.file_id,
-                caption: caption,
-                reply_to_message_id: ctx.message.message_id,
-              });
+              ctx
+                .replyWithDocument(respuesta.document.file_id, {
+                  caption: caption,
+                  reply_to_message_id: ctx.message.message_id,
+                })
+                .catch((err) => ctx.reply(JSON.stringify(err)));
             }
           }
         }
