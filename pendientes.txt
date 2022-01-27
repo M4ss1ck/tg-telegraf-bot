@@ -5,3 +5,16 @@ Usaré BD esta vez
 - añadir/quitar filtros
 - /create_table: para crear las tablas de la BD 
 - reputación de los usuarios
+- /nick: para cambiar el nick del usuario
+- /ud
+- /tr
+- /vs
+- /ran 
+- bola 8
+- /config
+
+
+"mmm"s:
+- /meme
+- /lec
+- /cr
