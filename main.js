@@ -476,6 +476,44 @@ bot.command("rem", (ctx) => {
   );
   ctx.replyWithHTML(`Filtro <code>${trigger}</code> eliminado`);
 });
+
+bot.command(["filters", "filtros"], (ctx) => {
+  query(
+    `SELECT * FROM filters WHERE chat = '${ctx.chat.id}'`,
+    [],
+    (err, res) => {
+      if (err) {
+        console.log("[ERROR UPDATING]");
+        console.log(err.stack);
+      } else {
+        let texto = [`Lista de filtros (${ctx.chat.id}): `];
+        for (let i = 0; i < res.rows.length; i++) {
+          const filtro_i = res.rows[i].filtro;
+          texto.push(filtro_i);
+        }
+        const salida = texto.join("\n");
+        ctx.reply(salida);
+      }
+    }
+  );
+});
+
+bot.command(["filters_all", "filtros_todos"], (ctx) => {
+  query(`SELECT * FROM filters`, [], (err, res) => {
+    if (err) {
+      console.log("[ERROR UPDATING]");
+      console.log(err.stack);
+    } else {
+      let texto = [`Lista de filtros: `];
+      for (let i = 0; i < res.rows.length; i++) {
+        const filtro_i = `${res.rows[i].filtro} en ${res.rows[i].chat}`;
+        texto.push(filtro_i);
+      }
+      const salida = texto.join("\n");
+      ctx.reply(salida);
+    }
+  });
+});
 //
 //
 //
