@@ -424,27 +424,30 @@ bot.command("import", (ctx) => {
                 );
                 const tipo = columns[columns.length - 2];
                 const chat = columns[columns.length - 1];
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES ('${filtro}', '${respuesta}', '${tipo}', '${chat}');`;
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES ('${filtro}', '${respuesta}', '${tipo}', '${chat}') ON CONFLICT (filtro) DO NOTHING;`;
                 text = insert;
               } else if (nombre === "config") {
                 const values_temp = row.split(",");
-                //const first_col = columns_array[0];
+                const first_col = columns_array[0];
                 const values = "'" + values_temp.join("', '") + "'";
                 console.log("[values]: ", values, "end");
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values}) ON CONFLICT (${first_col}) DO NOTHING;`;
                 text = insert;
               } else {
                 const values_temp = row.split(",");
-                //const first_col = columns_array[0];
+                const first_col = columns_array[0];
                 const values = "'" + values_temp.join("', '") + "'";
 
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values}) ON CONFLICT (${first_col}) DO NOTHING;`;
                 text = insert;
               }
-              console.log(text);
-              //await anotherQuery(text);
+              //console.log(text);
+              await anotherQuery(text).catch((err) => {
+                console.log(err);
+              });
             }
           });
+          ctx.reply("Tabla importada");
         });
       });
   }
