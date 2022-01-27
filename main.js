@@ -1,5 +1,14 @@
 import { Telegraf, Markup } from "telegraf";
 import { Parser } from "expr-eval";
+import axios from "axios";
+import {
+  query,
+  updateUserStat,
+  exportTable,
+  importTable,
+  borrarBD,
+  checkIfCmdProceed,
+} from "./db.js";
 
 const parser = new Parser({
   operators: {
@@ -28,6 +37,32 @@ const inicio = performance.now();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.action("del", (ctx) => ctx.deleteMessage());
+bot.action("enviarBD", async (ctx) => {
+  await ctx
+    .replyWithDocument({
+      source: `filters.csv`,
+      caption: "Filtros exportados",
+      filename: "filters.csv",
+    })
+    .then(() => borrarBD("filters.csv"))
+    .catch((err) => console.log(err));
+  await ctx
+    .replyWithDocument({
+      source: `usuarios.csv`,
+      caption: "Usuarios exportados",
+      filename: "usuarios.csv",
+    })
+    .then(() => borrarBD("usuarios.csv"))
+    .catch((err) => console.log(err));
+  await ctx
+    .replyWithDocument({
+      source: `config.csv`,
+      caption: "Filtros exportados",
+      filename: "config.csv",
+    })
+    .then(() => borrarBD("config.csv"))
+    .catch((err) => console.log(err));
+});
 
 bot.command(["group", "promo", "spam"], (ctx) => {
   const keyboard = Markup.inlineKeyboard([
@@ -167,9 +202,7 @@ bot.on("inline_query", async (ctx) => {
     {
       title: `Tu porcentaje de ${query}`,
       description: `La efectividad está probada científicamente`,
-      message_text: `Según este bot soy ${Math.floor(
-        Math.random() * 100
-      )}% ${query}`,
+      message_text: `Soy ${Math.floor(Math.random() * 100)}% ${query}`,
     },
     {
       title: `Probabilidad de que ${query}`,
@@ -180,7 +213,12 @@ bot.on("inline_query", async (ctx) => {
     },
   ];
   const markup = Markup.inlineKeyboard([
-    [Markup.button.callback("Borrar", "del")],
+    [
+      Markup.button.switchToCurrentChat(
+        "Probar otra vez",
+        "fanático de este bot"
+      ),
+    ],
   ]);
   const recipes = response.map(({ title, description, message_text }) => ({
     type: "article",
@@ -191,7 +229,7 @@ bot.on("inline_query", async (ctx) => {
     input_message_content: {
       message_text: message_text,
     },
-    reply_markup: markup,
+    ...markup,
   }));
   //console.log(recipes);
   return await ctx.answerInlineQuery(recipes, { cache_time: 1 });
@@ -332,7 +370,242 @@ bot.command("set_victim", (ctx) => {
     ctx.reply(`Ahora ${victim} es la victima`);
   }
 });
+// Sobre bases de datos
+bot.command("create_table", (ctx) => {
+  if (ctx.from.id.toString() === my_id) {
+    query(
+      "CREATE TABLE IF NOT EXISTS public.filters(filtro text NOT NULL, respuesta text NOT NULL, tipo text NOT NULL, chat text); ALTER TABLE IF EXISTS public.filters2 OWNER to postgres;"
+    );
+    query(
+      "CREATE TABLE IF NOT EXISTS public.usuarios(tg_id text NOT NULL, rep integer, fecha date, nick text, rango text, chat_ids text[]); ALTER TABLE IF EXISTS public.usuarios OWNER to postgres;"
+    );
+    query(
+      "CREATE TABLE IF NOT EXISTS public.config(chat_id text NOT NULL, opciones text); ALTER TABLE IF EXISTS public.config OWNER to postgres;"
+    );
+    ctx.reply("Tablas creadas");
+  }
+});
 
+bot.command("import", (ctx) => {
+  if (
+    ctx.from.id.toString() === my_id &&
+    ctx.message.reply_to_message &&
+    ctx.message.reply_to_message.document
+  ) {
+    const nombre = ctx.message.reply_to_message.document.file_name
+      .replace(/\d+/, "")
+      .replace(".csv", "");
+    ctx.telegram
+      .getFileLink(ctx.message.reply_to_message.document.file_id)
+      .then((res) => {
+        const url = res.href;
+        //console.log(res);
+        axios({ url }).then(async (res) => {
+          let data = res.data;
+          console.log(data);
+          await importTable(nombre, data).then(() => {
+            query(
+              "DELETE FROM config T1 USING config T2 WHERE T1.ctid < T2.ctid AND T1.chat_id  = T2.chat_id;"
+            );
+            ctx.reply("BD importada con éxito");
+          });
+        });
+      });
+  }
+});
+
+bot.command("export", (ctx) => {
+  if (ctx.from.id.toString() === my_id) {
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback("Enviar archivos", "enviarBD")],
+    ]);
+    exportTable("filters").then(() => {
+      exportTable("usuarios").then(() => {
+        exportTable("config").then(() => {
+          ctx.reply("Tablas exportadas con éxito", keyboard);
+        });
+      });
+    });
+  }
+});
+
+bot.command("add", (ctx) => {
+  if (ctx.message.reply_to_message) {
+    const trigger = ctx.message.text.replace("/add ", "");
+    const answer = JSON.stringify(ctx.message.reply_to_message);
+    let type;
+    if (ctx.message.reply_to_message.text) {
+      type = "text";
+    } else if (ctx.message.reply_to_message.photo) {
+      type = "photo";
+    } else if (ctx.message.reply_to_message.voice) {
+      type = "voice";
+    } else if (ctx.message.reply_to_message.video) {
+      type = "video";
+    } else if (ctx.message.reply_to_message.sticker) {
+      type = "sticker";
+    } else if (ctx.message.reply_to_message.audio) {
+      type = "audio";
+    } else {
+      type = "document";
+    }
+    query(
+      `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}';`
+    );
+    const values = [trigger, answer, type, ctx.chat.id];
+    query(
+      "INSERT INTO filters(filtro, respuesta, tipo, chat) VALUES($1, $2, $3, $4)",
+      values,
+      (err, res) => {
+        if (err) {
+          console.log("[ERROR UPDATING]");
+          console.log(err.stack);
+        } else {
+          console.log("[filtro agregado]");
+          ctx.replyWithHTML(`Nuevo filtro <code>${trigger}</code>`);
+        }
+      }
+    );
+  }
+});
+
+bot.command("rem", (ctx) => {
+  const trigger = ctx.message.text.replace("/rem ", "");
+  query(
+    `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}'`
+  );
+  ctx.replyWithHTML(`Filtro <code>${trigger}</code> eliminado`);
+});
+//
+//
+//
+
+// filtros
+bot.on("message", (ctx) => {
+  query("SELECT * FROM filters", [], (err, res) => {
+    if (err) {
+      console.log("[ERROR UPDATING]");
+      console.log(err.stack);
+    } else {
+      //console.log(res.rows);
+      res.rows.map((trigger) => {
+        //console.log(trigger.filtro, "\n", trigger.respuesta[1]);
+        const regex = new RegExp("^" + trigger.filtro + "$", "i");
+        // let caption =
+        //   trigger.respuesta[1] === undefined ? null : trigger.respuesta[1];
+
+        const respuesta = JSON.parse(trigger.respuesta);
+        const caption = respuesta.caption ? respuesta.caption : null;
+        // hacer que el filtro solo funcione en el chat que se creó
+        //console.log("Chat BD ", trigger.chat, "\nChat actual ", chat_id);
+        if (trigger.chat === ctx.chat.id.toString()) {
+          if (
+            ctx.message.text.match(regex) ||
+            ctx.message.caption?.match(regex)
+          ) {
+            //console.log("TIPO DE FILTRO\n", trigger.tipo);
+            if (trigger.tipo === "text") {
+              // parse entities into message text
+              const entities = respuesta.entities || [];
+              console.log("Entities ", entities);
+              let texto_final = respuesta.text;
+              entities.map((entity) => {
+                const { offset, length, type } = entity;
+                let tag;
+                //const tag = type === "text_link" ? "a" : type;
+                switch (type) {
+                  case "text_link":
+                    tag = "a";
+                    break;
+                  case "bold":
+                    tag = "b";
+                    break;
+                  case "italic":
+                    tag = "i";
+                    break;
+                  case "code":
+                    tag = "code";
+                    break;
+                  case "pre":
+                    tag = "pre";
+                    break;
+                  case "text_mention":
+                    tag = "a";
+                    break;
+                  case "strikethrough":
+                    tag = "s";
+                    break;
+                  case "underline":
+                    tag = "u";
+                    break;
+                  default:
+                    tag = "i";
+                    break;
+                }
+                console.log("Tag ", tag);
+                texto_final = texto_final.replace(
+                  respuesta.text.substr(offset, length),
+                  `<${tag} ${
+                    entity.url ? `href="${entity.url}"` : ``
+                  }>${respuesta.text.substr(offset, length)}</${tag}>`
+                );
+              });
+
+              ctx.replyWithHTML(texto_final, {
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else if (trigger.tipo === "photo") {
+              ctx.replyWithPhoto({
+                source: respuesta.photo[respuesta.photo.length - 1].file_id,
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else if (trigger.tipo === "sticker") {
+              ctx.replyWithSticker({
+                source: respuesta.sticker.file_id,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else if (trigger.tipo === "voice") {
+              bot.sendVoice(chat_id, respuesta.voice.file_id, {
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+              ctx.replyWithVoice({
+                source: respuesta.voice.file_id,
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else if (trigger.tipo === "video") {
+              ctx.replyWithVideo({
+                source: respuesta.video.file_id,
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else if (trigger.tipo === "audio") {
+              ctx.replyWithAudio({
+                source: respuesta.audio.file_id,
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            } else {
+              bot.sendDocument(chat_id, respuesta, {
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+              ctx.replyWithDocument({
+                source: respuesta.document.file_id,
+                caption: caption,
+                reply_to_message_id: ctx.message.message_id,
+              });
+            }
+          }
+        }
+      });
+    }
+  });
+});
+
+// Iniciar bot
 bot.launch();
 console.log("BOT INICIADO");
 
