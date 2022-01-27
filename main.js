@@ -3,6 +3,7 @@ import { Parser } from "expr-eval";
 import axios from "axios";
 import {
   query,
+  anotherQuery,
   updateUserStat,
   exportTable,
   importTable,
@@ -402,12 +403,47 @@ bot.command("import", (ctx) => {
         //console.log(res);
         axios({ url }).then(async (res) => {
           let data = res.data;
-          console.log(data);
-          await importTable(nombre, data).then(() => {
-            query(
-              "DELETE FROM config T1 USING config T2 WHERE T1.ctid < T2.ctid AND T1.chat_id  = T2.chat_id;"
-            );
-            ctx.reply("BD importada con éxito");
+          const rows = data.split("\n");
+          const columns_array = rows[0].split(",");
+          const column_names = columns_array.join(", ");
+          //console.log(rows[1] + "\n");
+          rows.map(async (row, index) => {
+            if (index > 0) {
+              let text = "";
+
+              if (nombre === "filters") {
+                const columns = row.split(",");
+                const filtro = columns[0];
+                const respuesta_temp = columns
+                  .slice(1, -2)
+                  .join(",")
+                  .replace(/""/g, '"');
+                const respuesta = respuesta_temp.substring(
+                  1,
+                  respuesta_temp.length - 1
+                );
+                const tipo = columns[columns.length - 2];
+                const chat = columns[columns.length - 1];
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES ('${filtro}', '${respuesta}', '${tipo}', '${chat}') ON CONFLICT (filtro) DO NOTHING;`;
+                text = insert;
+              } else if (nombre === "config") {
+                const values_temp = row.split(",");
+                const first_col = columns_array[0];
+                const values = "'" + values_temp.join("', '") + "'";
+                console.log("[values]: ", values, "end");
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values}) ON CONFLICT (${first_col}) DO NOTHING;`;
+                text = insert;
+              } else {
+                const values_temp = row.split(",");
+                const first_col = columns_array[0];
+                const values = "'" + values_temp.join("', '") + "'";
+
+                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values}) ON CONFLICT (${first_col}) DO NOTHING;`;
+                text = insert;
+              }
+              console.log(text);
+              //await anotherQuery(text);
+            }
           });
         });
       });
@@ -534,6 +570,7 @@ bot.on("message", (ctx) => {
             (ctx.message.text && ctx.message.text.match(regex)) ||
             (ctx.message.caption && ctx.message.caption.match(regex))
           ) {
+            console.log(trigger.respuesta + "\n" + respuesta);
             if (trigger.tipo === "text") {
               const entities = respuesta.entities || [];
               console.log("Entities ", entities);

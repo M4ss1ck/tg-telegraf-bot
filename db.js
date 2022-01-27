@@ -141,4 +141,5 @@ export {
   importTable,
   borrarBD,
   checkIfCmdProceed,
+  anotherQuery,
 };
