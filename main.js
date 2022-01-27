@@ -21,7 +21,7 @@ const parser = new Parser({
 });
 
 const my_id = process.env.ADMIN_ID;
-
+let victim = process.env.VICTIM_ID;
 // hora en que arranca el bot
 const inicio = performance.now();
 
@@ -253,6 +253,83 @@ bot.command("quit", (ctx) => {
     ctx
       .reply("Me fui 👋")
       .then(() => ctx.telegram.leaveChat(ctx.message.chat.id));
+  }
+});
+
+bot.hears(/^\/(s|s@\w+)(\/)?$/i, (ctx) =>
+  ctx.replyWithHTML(
+    `Debe escoger qué parte del mensaje desea reemplazar y con qué desea hacerlo.\nPor ejemplo, si tenemos un mensaje que diga "Eres feo" y queremos transformarlo en "Eres hermoso", debemos usar <pre>/s/feo/hermoso</pre> respondiendo dicho mensaje.\n\n<b>Nota:</b> Si el bot es administrador, borrará nuestro mensaje`,
+    {
+      reply_to_message_id: ctx.message.message_id,
+    }
+  )
+);
+
+bot.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
+  let [, , search, replace] = ctx.match;
+  replace = replace ?? "";
+  console.log(search, replace);
+  let text = "";
+  if (ctx.message.reply_to_message) {
+    let msg =
+      ctx.message.reply_to_message.text ?? ctx.message.reply_to_message.caption;
+    msg = msg.replace('En realidad quisiste decir: \n\n"', "");
+    text =
+      '<b>En realidad quisiste decir:</b> \n\n"' +
+      msg.replace(new RegExp(search, "g"), replace) +
+      '"';
+    ctx
+      .replyWithHTML(text, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
+      })
+      .then(() => {
+        ctx.deleteMessage();
+      });
+  } else {
+    ctx.reply("Debes responder un mensaje o de lo contrario no funcionará", {
+      reply_to_message_id: ctx.message.message_id,
+    });
+  }
+});
+
+bot.command("tag", (ctx) => {
+  const text = ctx.message.text.substring(5) ?? "";
+  const number =
+    text.length > 0 && text.match(/\d+/g) ? text.match(/\d+/g)[0] : 1;
+  const n = parseInt(number ?? 1) > 20 ? 20 : parseInt(number ?? 1);
+  console.log(text, number, n);
+  let new_victim = ctx.message.reply_to_message
+    ? ctx.message.reply_to_message.from.id
+    : victim;
+
+  if (new_victim.toString() == my_id) {
+    ctx.replyWithHTML(
+      `<a href="tg://user?id=${ctx.from.id}">Cariño</a>, no puedo hacer eso`,
+      {
+        reply_to_message_id: ctx.message.message_id,
+      }
+    );
+  } else {
+    // voy a usar async await para que la salida esté en orden
+    // como en https://zellwk.com/blog/async-await-in-loops/
+    const forEnOrden = async (_) => {
+      for (let i = 0; i < n; i++) {
+        await ctx.replyWithHTML(
+          `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${
+            i + 1
+          }</em>`
+        );
+      }
+    };
+    forEnOrden();
+  }
+});
+
+bot.command("set_victim", (ctx) => {
+  const text = ctx.message.text.substring(12) ?? "";
+  if (ctx.from.id.toString() === my_id && text.match(/\d+/g)) {
+    victim = text.match(/\d+/g)[0];
+    ctx.reply(`Ahora ${victim} es la victima`);
   }
 });
 
