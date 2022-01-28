@@ -848,8 +848,8 @@ bot.command("set_rep", (ctx) => {
       ? ctx.message.reply_to_message.from.id
       : ctx.message.text.match(/\d+/g)[0];
     const dest_rep = ctx.message.reply_to_message
-      ? ctx.message.text.match(/\d+/g)[0]
-      : ctx.message.text.match(/\d+/g)[1];
+      ? ctx.message.text.match(/(\d+|\-\d+)/g)[0]
+      : ctx.message.text.match(/(\d+|\-\d+)/g)[1];
     query(
       `SELECT rep, nick FROM usuarios WHERE tg_id = '${dest_id}'`,
       [],
