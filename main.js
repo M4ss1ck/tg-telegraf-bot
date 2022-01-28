@@ -1,6 +1,7 @@
 import { Telegraf, Markup } from "telegraf";
 import { Parser } from "expr-eval";
 import axios from "axios";
+import { setRango, adornarRango } from "./utils.js";
 import {
   query,
   anotherQuery,
@@ -553,6 +554,376 @@ bot.command(["filters_all", "filtros_todos"], (ctx) => {
     }
   });
 });
+
+// reputacion
+bot.hears(/^\++$/, async (ctx) => {
+  if (ctx.message.reply_to_message) {
+    //id del remitente
+    const from_id = ctx.message.from.id;
+    //extraer nick y rep del remitente
+    query(
+      `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
+      [],
+      async (err, res) => {
+        if (err) {
+          console.log("[ERROR SELECTING] weird af");
+          console.log(err.stack);
+        } else {
+          // inicializar rep y nick del usuario
+          let from_rep = 0;
+          let from_nick = ctx.message.from.first_name;
+          let from_rango = setRango(from_rep);
+          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+          if (res.rows[0] === undefined) {
+            const values = [
+              from_id,
+              from_rep,
+              new Date(),
+              from_nick,
+              from_rango,
+            ];
+            await anotherQuery(
+              "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+              values
+            );
+          } else {
+            // si todo va bien, tomo los valores
+            from_rep = res.rows[0].rep;
+            from_nick = res.rows[0].nick;
+            from_rango = setRango(from_rep);
+            // en caso de que el usuario no tenga rango
+            if (res.rows[0].rango === null) {
+              updateUserStat(from_id, "rango", from_rango);
+            }
+          }
+
+          //farmeo de puntos
+          if (
+            ctx.message.reply_to_message.from.id === from_id &&
+            from_id !== parseInt(my_id)
+          ) {
+            //responder a uno mismo
+            return ctx.replyWithHTML(
+              `<a href="tg://user?id=${from_id}">[${adornarRango(
+                from_rango
+              )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+              { parseMode: "html" }
+            );
+          } else {
+            // aquí va el manejo de la reputación
+            const reply_id = ctx.message.reply_to_message.from.id;
+
+            //buscando al que sube la reputación en la BD
+            query(
+              `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
+              [],
+              async (err, res) => {
+                if (err) {
+                  console.log("[ERROR SELECTING] weird af");
+                  console.log(err.stack);
+                } else {
+                  // inicializar rep y nick del otro usuario
+                  let reply_rep = 1;
+                  let reply_nick = ctx.message.reply_to_message.from.first_name;
+                  let reply_rango = setRango(reply_rep);
+                  // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+                  if (res.rows[0] === undefined) {
+                    const values = [
+                      reply_id,
+                      reply_rep,
+                      new Date(),
+                      reply_nick,
+                      reply_rango,
+                    ];
+
+                    await anotherQuery(
+                      "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+                      values
+                    );
+                  } else {
+                    // si todo va bien, tomo los valores
+                    reply_rep = res.rows[0].rep;
+                    reply_nick = res.rows[0].nick;
+                    reply_rango = setRango(reply_rep + 1);
+                    // en caso de que el usuario no tenga rango
+                    if (res.rows[0].rango === null) {
+                      updateUserStat(reply_id, "rango", reply_rango);
+                    }
+                  }
+
+                  query(
+                    `UPDATE usuarios SET rep = rep + 1, rango = '${setRango(
+                      reply_rep + 1
+                    )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
+                    [],
+                    (err, res) => {
+                      if (err) {
+                        console.log("[ERROR UPDATING]");
+                        console.log(err.stack);
+                      } else {
+                        console.log(
+                          "[rep y rango actualizados][mensaje respondido]"
+                        );
+                        reply_rango = res.rows[0].rango;
+                      }
+                    }
+                  );
+
+                  console.log(
+                    `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
+                      reply_rep + 1
+                    } puntos de reputación ahora, cortesía de [${adornarRango(
+                      from_rango
+                    )}] ${from_nick} (rep: ${from_rep})`
+                  );
+                  ctx.replyWithHTML(
+                    `<a href="tg://user?id=${reply_id}">[${adornarRango(
+                      reply_rango
+                    )}] ${reply_nick}</a> tiene ${
+                      reply_rep + 1
+                    } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
+                      from_rango
+                    )}] ${from_nick}</a>`
+                  );
+                }
+              }
+            );
+          }
+        }
+      }
+    );
+  }
+});
+
+bot.hears(/^(\-|—)+$/, async (ctx) => {
+  if (ctx.message.reply_to_message) {
+    //id del remitente
+    const from_id = ctx.message.from.id;
+    //extraer nick y rep del remitente
+    query(
+      `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
+      [],
+      async (err, res) => {
+        if (err) {
+          console.log("[ERROR SELECTING] weird af");
+          console.log(err.stack);
+        } else {
+          // inicializar rep y nick del usuario
+          let from_rep = 0;
+          let from_nick = ctx.message.from.first_name;
+          let from_rango = setRango(from_rep);
+          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+          if (res.rows[0] === undefined) {
+            const values = [
+              from_id,
+              from_rep,
+              new Date(),
+              from_nick,
+              from_rango,
+            ];
+            await anotherQuery(
+              "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+              values
+            );
+          } else {
+            // si todo va bien, tomo los valores
+            from_rep = res.rows[0].rep;
+            from_nick = res.rows[0].nick;
+            from_rango = setRango(from_rep);
+            // en caso de que el usuario no tenga rango
+            if (res.rows[0].rango === null) {
+              updateUserStat(from_id, "rango", from_rango);
+            }
+          }
+
+          //farmeo de puntos
+          if (
+            ctx.message.reply_to_message.from.id === from_id &&
+            from_id !== parseInt(my_id)
+          ) {
+            //responder a uno mismo
+            return ctx.replyWithHTML(
+              `<a href="tg://user?id=${from_id}">[${adornarRango(
+                from_rango
+              )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+              { parseMode: "html" }
+            );
+          } else {
+            // aquí va el manejo de la reputación
+            const reply_id = ctx.message.reply_to_message.from.id;
+
+            //buscando al que sube la reputación en la BD
+            query(
+              `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
+              [],
+              async (err, res) => {
+                if (err) {
+                  console.log("[ERROR SELECTING] weird af");
+                  console.log(err.stack);
+                } else {
+                  // inicializar rep y nick del otro usuario
+                  let reply_rep = 0;
+                  let reply_nick = ctx.message.reply_to_message.from.first_name;
+                  let reply_rango = setRango(reply_rep);
+                  // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+                  if (res.rows[0] === undefined) {
+                    const values = [
+                      reply_id,
+                      reply_rep,
+                      new Date(),
+                      reply_nick,
+                      reply_rango,
+                    ];
+
+                    await anotherQuery(
+                      "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+                      values
+                    );
+                  } else {
+                    // si todo va bien, tomo los valores
+                    reply_rep = res.rows[0].rep;
+                    reply_nick = res.rows[0].nick;
+                    reply_rango = setRango(reply_rep - 1);
+                    // en caso de que el usuario no tenga rango
+                    if (res.rows[0].rango === null) {
+                      updateUserStat(reply_id, "rango", reply_rango);
+                    }
+                  }
+
+                  query(
+                    `UPDATE usuarios SET rep = rep - 1, rango = '${setRango(
+                      reply_rep - 1
+                    )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
+                    [],
+                    (err, res) => {
+                      if (err) {
+                        console.log("[ERROR UPDATING]");
+                        console.log(err.stack);
+                      } else {
+                        console.log(
+                          "[rep y rango actualizados][mensaje respondido]"
+                        );
+                        reply_rango = res.rows[0].rango;
+                      }
+                    }
+                  );
+
+                  console.log(
+                    `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
+                      reply_rep - 1
+                    } puntos de reputación ahora, cortesía de [${adornarRango(
+                      from_rango
+                    )}] ${from_nick} (rep: ${from_rep})`
+                  );
+                  ctx.replyWithHTML(
+                    `<a href="tg://user?id=${reply_id}">[${adornarRango(
+                      reply_rango
+                    )}] ${reply_nick}</a> tiene ${
+                      reply_rep - 1
+                    } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
+                      from_rango
+                    )}] ${from_nick}</a>`
+                  );
+                }
+              }
+            );
+          }
+        }
+      }
+    );
+  }
+});
+
+bot.command("reset_rep", (ctx) => {
+  query(`UPDATE usuarios SET rep = 0`);
+  ctx.reply("Se ha reiniciado la reputación para todos los usuarios");
+});
+
+bot.command("set_rep", (ctx) => {
+  if (ctx.from.id.toString() === my_id) {
+    const dest_id = ctx.message.reply_to_message
+      ? ctx.message.reply_to_message.from.id
+      : ctx.message.text.match(/\d+/g)[0];
+    const dest_rep = ctx.message.reply_to_message
+      ? ctx.message.text.match(/\d+/g)[0]
+      : ctx.message.text.match(/\d+/g)[1];
+    query(
+      `SELECT rep, nick FROM usuarios WHERE tg_id = '${dest_id}'`,
+      [],
+      async (err, res) => {
+        if (err) {
+          console.log("[ERROR SELECTING] weird af");
+          console.log(err.stack);
+        } else {
+          let dest_nick = ctx.message.from.first_name;
+          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+          if (res.rows[0] === undefined) {
+            const values = {
+              tg_id: dest_id.toString(),
+              nick: dest_nick,
+              rep: parseInt(dest_rep),
+              fecha: new Date(),
+            };
+            await anotherQuery(
+              "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
+              values
+            );
+            return ctx.replyWithHTML(
+              `Se ha registrado a ${dest_nick} con reputación ${dest_rep}`
+            );
+          } else {
+            // si todo va bien, tomo los valores
+            dest_nick = res.rows[0].nick;
+            updateUserStat(dest_id, "rep", parseInt(dest_rep));
+            return ctx.replyWithHTML(
+              `Se ha actualizado el registro de ${dest_nick} con reputación ${dest_rep}`
+            );
+          }
+        }
+      }
+    );
+  } else {
+    ctx.reply("No tienes suficientes privilegios para ejecutar este comando");
+  }
+});
+
+bot.command("nick", (ctx) => {
+  const new_nick = ctx.message.text.substring(6);
+  const id = ctx.message.from.id;
+  query(`SELECT nick FROM usuarios WHERE tg_id = '${id}'`, [], (err, res) => {
+    if (err) {
+      console.log("[ERROR SELECTING] weird af");
+      console.log(err.stack);
+    } else {
+      // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+      if (res.rows[0] === undefined) {
+        const values = [id, 0, new Date(), new_nick];
+        query(
+          "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
+          values
+        );
+      } else {
+        // si todo va bien, cambio el nick
+        updateUserStat(id, "nick", new_nick);
+      }
+      console.log(
+        "El nick de " + ctx.message.from.first_name + " será " + new_nick
+      );
+      return ctx
+        .replyWithHTML(
+          "El nick de " + ctx.message.from.first_name + " será " + new_nick
+        )
+        .catch((error) => {
+          console.log(
+            "[/nick] Hubo un error agregando un usuario",
+            error.description
+          );
+          return ctx.replyWithHTML(error.description);
+        });
+    }
+  });
+});
+
 //
 //
 //

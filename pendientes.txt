@@ -2,9 +2,9 @@ Cosas que me faltan por implementar del massickBot original:
 - /set_del: para borrar mensajes usando un filtro
 Usaré BD esta vez
 - filtros: tengo que implementar la BD [ya]
-- añadir/quitar filtros [con problemas]
+- añadir/quitar filtros [ya]
 - /create_table: para crear las tablas de la BD [ya]
-- reputación de los usuarios
+- reputación de los usuarios [ya]
 - /nick: para cambiar el nick del usuario
 - /ud
 - /tr
