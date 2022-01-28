@@ -840,7 +840,10 @@ bot.command("reset_rep", (ctx) => {
 });
 
 bot.command("set_rep", (ctx) => {
-  if (ctx.from.id.toString() === my_id) {
+  if (
+    ctx.from.id.toString() === my_id &&
+    ctx.message.text.substring(9).length > 0
+  ) {
     const dest_id = ctx.message.reply_to_message
       ? ctx.message.reply_to_message.from.id
       : ctx.message.text.match(/\d+/g)[0];
@@ -883,7 +886,9 @@ bot.command("set_rep", (ctx) => {
       }
     );
   } else {
-    ctx.reply("No tienes suficientes privilegios para ejecutar este comando");
+    ctx.reply(
+      "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero"
+    );
   }
 });
 

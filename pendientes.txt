@@ -5,7 +5,7 @@ Usaré BD esta vez
 - añadir/quitar filtros [ya]
 - /create_table: para crear las tablas de la BD [ya]
 - reputación de los usuarios [ya]
-- /nick: para cambiar el nick del usuario
+- /nick: para cambiar el nick del usuario [ya]
 - /ud
 - /tr
 - /vs
