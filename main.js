@@ -861,12 +861,12 @@ bot.command("set_rep", (ctx) => {
           let dest_nick = ctx.message.from.first_name;
           // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
           if (res.rows[0] === undefined) {
-            const values = {
-              tg_id: dest_id.toString(),
-              nick: dest_nick,
-              rep: parseInt(dest_rep),
-              fecha: new Date(),
-            };
+            const values = [
+              dest_id.toString(),
+              dest_nick,
+              parseInt(dest_rep),
+              new Date(),
+            ];
             await anotherQuery(
               "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
               values
