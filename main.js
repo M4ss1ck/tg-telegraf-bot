@@ -352,13 +352,18 @@ bot.command("tag", (ctx) => {
   } else {
     // voy a usar async await para que la salida esté en orden
     // como en https://zellwk.com/blog/async-await-in-loops/
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
     const forEnOrden = async (_) => {
       for (let i = 0; i < n; i++) {
-        await ctx.replyWithHTML(
-          `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${
-            i + 1
-          }</em>`
-        );
+        await sleep(1500).then(() => {
+          ctx.replyWithHTML(
+            `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${
+              i + 1
+            }</em>`
+          );
+        });
       }
     };
     forEnOrden();
