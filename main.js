@@ -65,7 +65,7 @@ bot.action("enviarBD", async (ctx) => {
     .catch((err) => console.log(err));
 });
 
-bot.command(["group", "promo", "spam"], (ctx) => {
+bot.command(["grupo", "group", "promo", "spam"], (ctx) => {
   const keyboard = Markup.inlineKeyboard([
     [
       Markup.button.url("Grupo", "https://t.me/juestin_taim"),
