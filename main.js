@@ -323,7 +323,13 @@ bot.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
         reply_to_message_id: ctx.message.reply_to_message.message_id,
       })
       .then(() => {
-        ctx.deleteMessage();
+        ctx.deleteMessage().catch(() => {
+          console.log("No se pudo borrar el mensaje");
+          const keyboard = Markup.inlineKeyboard([
+            [Markup.button.callback("Borrar", "del")],
+          ]);
+          ctx.replyWithHTML("No pude borrar el mensaje", keyboard);
+        });
       });
   } else {
     ctx.reply("Debes responder un mensaje o de lo contrario no funcionará", {
@@ -575,9 +581,6 @@ bot.command("ud", (ctx) => {
   axios
     .request(options)
     .then((response) => {
-      //console.log(typeof response.data.list);
-      //console.log(response.data.list);
-
       const cantDef = response.data.list.length;
       const data = response.data.list[0];
       let def = data.definition;
