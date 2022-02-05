@@ -1,6 +1,7 @@
 import { Telegraf, Markup } from "telegraf";
 import { Parser } from "expr-eval";
 import axios from "axios";
+import Twig from "twig";
 import { setRango, adornarRango } from "./utils.js";
 import {
   query,
@@ -996,6 +997,27 @@ bot.command("nick", (ctx) => {
         });
     }
   });
+});
+
+bot.command("run", async (ctx) => {
+  if (ctx.from.id.toString() === my_id) {
+    let text = ctx.message.text.substring(5);
+    console.log(text);
+    try {
+      let template = Twig.twig({
+        data: text,
+      });
+      await template.renderAsync({
+        telegram: ctx.telegram,
+        ctx: ctx,
+        here: ctx.chat.id,
+      });
+    } catch (error) {
+      ctx.replyWithHTML(error.message);
+    }
+  } else {
+    ctx.reply("No tienes suficientes privilegios para ejecutar este comando");
+  }
 });
 
 //
