@@ -999,6 +999,29 @@ bot.command("nick", (ctx) => {
   });
 });
 
+bot.command("like", async (ctx) => {
+  const text =
+    ctx.message.text.length > 5
+      ? ctx.message.text.substring(6)
+      : ctx.from.first_name;
+  if (ctx.message.reply_to_message) {
+    await ctx.replyWithHTML(`A ${text} le gusta esto 👆👀`, {
+      reply_to_message_id: ctx.message.reply_to_message.message_id,
+    });
+    await ctx.deleteMessage().catch(() => {
+      console.log("No se pudo borrar el mensaje");
+      // const keyboard = Markup.inlineKeyboard([
+      //   [Markup.button.callback("Borrar", "del")],
+      // ]);
+      // ctx.replyWithHTML("No pude borrar el mensaje", keyboard);
+    });
+  } else {
+    await ctx.replyWithHTML(
+      `A ${text} le gusta alguien aquí pero es tímido 😳`
+    );
+  }
+});
+
 bot.command("run", async (ctx) => {
   if (ctx.from.id.toString() === my_id) {
     let text = ctx.message.text.substring(5);
