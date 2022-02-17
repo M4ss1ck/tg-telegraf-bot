@@ -1008,18 +1008,18 @@ bot.command("like", async (ctx) => {
     await ctx.replyWithHTML(`A ${text} le gusta esto 👆👀`, {
       reply_to_message_id: ctx.message.reply_to_message.message_id,
     });
-    await ctx.deleteMessage().catch(() => {
-      console.log("No se pudo borrar el mensaje");
-      // const keyboard = Markup.inlineKeyboard([
-      //   [Markup.button.callback("Borrar", "del")],
-      // ]);
-      // ctx.replyWithHTML("No pude borrar el mensaje", keyboard);
-    });
   } else {
     await ctx.replyWithHTML(
       `A ${text} le gusta alguien aquí pero es tímido 😳`
     );
   }
+  await ctx.deleteMessage().catch(() => {
+    console.log("No se pudo borrar el mensaje");
+    // const keyboard = Markup.inlineKeyboard([
+    //   [Markup.button.callback("Borrar", "del")],
+    // ]);
+    // ctx.replyWithHTML("No pude borrar el mensaje", keyboard);
+  });
 });
 
 bot.command("run", async (ctx) => {
