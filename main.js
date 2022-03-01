@@ -1078,7 +1078,7 @@ bot.command("poll", async (ctx) => {
           encuestas.push({
             chat: poll_chat,
             id: poll_id,
-            options: options,
+            options: option,
             question: current_question,
           });
         });
@@ -1093,7 +1093,6 @@ bot.command(["close", "cerrar"], async (ctx) => {
     bot.telegram
       .stopPoll(ctx.chat.id, ctx.message.reply_to_message.message_id)
       .then((res) => {
-        console.log(res);
         let text = `<b>${res.question}</b>\n`;
         const total = res.total_voter_count;
         res.options.map(
@@ -1113,14 +1112,16 @@ bot.command(["close", "cerrar"], async (ctx) => {
 bot.on("poll_answer", async (ctx) => {
   const id = ctx.pollAnswer.poll_id;
   const encuesta = encuestas.find((element) => element.id === id);
-  //console.log(ctx);
   if (encuesta !== undefined) {
     const user = ctx.pollAnswer.user.first_name;
     const option = ctx.pollAnswer.option_ids[0];
     const option_text = encuesta.options[option];
     const text =
       option === undefined
-        ? user + " retractó su voto en la encuesta " + id
+        ? user +
+          " retractó su voto en la encuesta <b>" +
+          encuesta.question +
+          "</b>"
         : user +
           " votó por la opción <b>" +
           option_text +
