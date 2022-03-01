@@ -12,6 +12,7 @@ import {
   borrarBD,
   checkIfCmdProceed,
 } from "./db.js";
+import { meaning } from "./scraping.js";
 
 const parser = new Parser({
   operators: {
@@ -36,6 +37,8 @@ const my_id = process.env.ADMIN_ID;
 let victim = process.env.VICTIM_ID;
 // hora en que arranca el bot
 const inicio = performance.now();
+// para las encuestas
+let encuestas = [];
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -1043,9 +1046,55 @@ bot.command("run", async (ctx) => {
   }
 });
 
+bot.command("poll", async (ctx) => {
+  const text = ctx.message.text.substring(6);
+  if (text.length > 0) {
+    const arr = text.split(";");
+    const question = arr[0].length > 255 ? arr[0].substring(0, 255) : arr[0];
+    const options = arr
+      .slice(1)
+      .map((element) =>
+        element.length > 100 ? element.substring(0, 100) : element
+      );
+    const extra = {
+      is_anonymous: false,
+      //protect_content: true,
+      //allows_multiple_answers: true,
+      //close_date: new Date(Date.now() + 60 * 60 * 1000),
+    };
+
+    const size = options.length;
+    const poll_count = Math.ceil(size / 10);
+    const part = Math.ceil(options.length / poll_count);
+    for (let i = 0; i < poll_count; i++) {
+      let option = options.slice(part * i, part * (i + 1));
+      await ctx.telegram
+        .sendPoll(ctx.chat.id, question, option, extra)
+        .then((res) => {
+          const poll_chat = res.chat.id;
+          const poll_id = res.poll.id;
+          encuestas.push({ chat: poll_chat, id: poll_id });
+        });
+    }
+  } else {
+    ctx.reply("Añade un título y opciones para la encuesta");
+  }
+});
 //
 //
-//
+// check for new poll votes
+bot.on("poll_answer", async (ctx) => {
+  const id = ctx.pollAnswer.poll_id;
+  const user = ctx.pollAnswer.user.first_name;
+  const option = ctx.pollAnswer.option_ids[0];
+  const text =
+    option === undefined
+      ? user + " retractó su voto en la encuesta " + id
+      : user + " votó por la opción " + option + " en la encuesta " + id;
+  const chat = encuestas.find((element) => element.id === id);
+  //console.log(chat);
+  bot.telegram.sendMessage(chat?.chat ?? my_id, text);
+});
 
 // filtros
 bot.on("message", (ctx) => {
