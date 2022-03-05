@@ -39,6 +39,9 @@ let victim = process.env.VICTIM_ID;
 const inicio = performance.now();
 // para las encuestas
 let encuestas = [];
+// para los enamorados
+let loveTime = 0;
+let couple = [];
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -1046,6 +1049,43 @@ bot.command("run", async (ctx) => {
   }
 });
 
+bot.command("love", async (ctx) => {
+  const now = new Date();
+  //console.log(now, loveTime, now - loveTime);
+  const time = "\nSiguiente pareja en " + timeToNext(now - loveTime);
+  if (now - loveTime > 1000 * 60 * 60 * 24) {
+    const query = "SELECT nick, tg_id FROM usuarios";
+    await anotherQuery(query).then((res) => {
+      const users = res.rows;
+      const i = Math.floor(Math.random() * users.length);
+      const j = Math.floor(Math.random() * users.length);
+      const lover1 = users[i];
+      const lover2 = users[j];
+      if (lover1.nick === lover2.nick) {
+        ctx.replyWithHTML(
+          `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> consigo mismo/a\n<em>${time}</em>`
+        );
+      } else {
+        ctx.replyWithHTML(
+          `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> 💘 <a href="tg://user?id=${lover2.tg_id}">${lover2.nick}</a>\n<em>${time}</em>`
+        );
+      }
+      loveTime = new Date();
+      couple.push(lover1, lover2);
+    });
+  } else {
+    if (couple[0].nick === couple[1].nick) {
+      ctx.replyWithHTML(
+        `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> consigo mismo/a\n<em>${time}</em>`
+      );
+    } else {
+      ctx.replyWithHTML(
+        `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> 💘 <b>${couple[1].nick}</b>\n<em>${time}</em>`
+      );
+    }
+  }
+});
+
 bot.command("poll", async (ctx) => {
   const text = ctx.message.text.substring(6);
   if (text.length > 0) {
@@ -1275,6 +1315,26 @@ const elapsedTime = (inicio) => {
     return `${minutos} min ${segundos} s`;
   } else {
     return `${roundToAny(activo / 1000, 1)} s`;
+  }
+};
+
+const timeToNext = (time) => {
+  const current =
+    time < 1000 * 60 * 60 * 24
+      ? 1000 * 60 * 60 * 24 - time
+      : 1000 * 60 * 60 * 24;
+  if (current > 60 * 60 * 1000) {
+    const valor = roundToAny(current / 3600000, 2);
+    const horas = Math.floor(valor);
+    const minutos = roundToAny((valor - horas) * 60, 0);
+    return `${horas} h ${minutos} min`;
+  } else if (current > 60000) {
+    const valor = roundToAny(current / 60000, 2);
+    const minutos = Math.floor(valor);
+    const segundos = roundToAny((valor - minutos) * 60, 0);
+    return `${minutos} min ${segundos} s`;
+  } else {
+    return `${roundToAny(current / 1000, 1)} s`;
   }
 };
 
