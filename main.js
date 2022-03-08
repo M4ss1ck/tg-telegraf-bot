@@ -1071,7 +1071,7 @@ bot.command("love", async (ctx) => {
         );
       }
       loveTime = new Date();
-      couple.push(lover1, lover2);
+      couple = [lover1, lover2];
     });
   } else {
     if (couple[0].nick === couple[1].nick) {
@@ -1327,12 +1327,12 @@ const timeToNext = (time) => {
     const valor = roundToAny(current / 3600000, 2);
     const horas = Math.floor(valor);
     const minutos = roundToAny((valor - horas) * 60, 0);
-    return `${horas} h ${minutos} min`;
+    return `${horas} h ${minutos > 0 ? minutos + " min" : ""}`;
   } else if (current > 60000) {
     const valor = roundToAny(current / 60000, 2);
     const minutos = Math.floor(valor);
     const segundos = roundToAny((valor - minutos) * 60, 0);
-    return `${minutos} min ${segundos} s`;
+    return `${minutos} min ${segundos > 0 ? segundos + " s" : ""}`;
   } else {
     return `${roundToAny(current / 1000, 1)} s`;
   }
