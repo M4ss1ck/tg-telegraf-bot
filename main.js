@@ -1090,38 +1090,42 @@ bot.command("poll", async (ctx) => {
   const text = ctx.message.text.substring(6);
   if (text.length > 0) {
     const arr = text.split(";");
-    const question = arr[0].length > 250 ? arr[0].substring(0, 250) : arr[0];
-    const options = arr
-      .slice(1)
-      .map((element) =>
-        element.length > 100 ? element.substring(0, 100) : element
-      );
-    const extra = {
-      is_anonymous: false,
-      //protect_content: true,
-      //allows_multiple_answers: true,
-      //close_date: new Date(Date.now() + 60 * 60 * 1000),
-    };
+    if (arr.length < 3) {
+      ctx.reply("No hay suficientes opciones");
+    } else {
+      const question = arr[0].length > 250 ? arr[0].substring(0, 250) : arr[0];
+      const options = arr
+        .slice(1)
+        .map((element) =>
+          element.length > 100 ? element.substring(0, 100) : element
+        );
+      const extra = {
+        is_anonymous: false,
+        //protect_content: true,
+        //allows_multiple_answers: true,
+        //close_date: new Date(Date.now() + 60 * 60 * 1000),
+      };
 
-    const size = options.length;
-    const poll_count = Math.ceil(size / 10);
-    const part = Math.ceil(options.length / poll_count);
-    for (let i = 0; i < poll_count; i++) {
-      let option = options.slice(part * i, part * (i + 1));
-      const current_question =
-        poll_count > 1 ? `${question} (${i + 1}/${poll_count})` : question;
-      await ctx.telegram
-        .sendPoll(ctx.chat.id, current_question, option, extra)
-        .then((res) => {
-          const poll_chat = res.chat.id;
-          const poll_id = res.poll.id;
-          encuestas.push({
-            chat: poll_chat,
-            id: poll_id,
-            options: option,
-            question: current_question,
+      const size = options.length;
+      const poll_count = Math.ceil(size / 10);
+      const part = Math.ceil(options.length / poll_count);
+      for (let i = 0; i < poll_count; i++) {
+        let option = options.slice(part * i, part * (i + 1));
+        const current_question =
+          poll_count > 1 ? `${question} (${i + 1}/${poll_count})` : question;
+        await ctx.telegram
+          .sendPoll(ctx.chat.id, current_question, option, extra)
+          .then((res) => {
+            const poll_chat = res.chat.id;
+            const poll_id = res.poll.id;
+            encuestas.push({
+              chat: poll_chat,
+              id: poll_id,
+              options: option,
+              question: current_question,
+            });
           });
-        });
+      }
     }
   } else {
     ctx.reply("Añade un título y opciones para la encuesta");
