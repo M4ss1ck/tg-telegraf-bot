@@ -113,10 +113,6 @@ bot.command("me", async (ctx) => {
     .replace(/"/g, " ")
     .replace(/,/g, ",\n")
     .replace(/{/g, "\n {");
-  const messageInfo = JSON.stringify(ctx.message)
-    .replace(/"/g, " ")
-    .replace(/,/g, ",\n")
-    .replace(/{/g, "\n {");
   const text =
     "Bot info: \n" +
     botInfo +
@@ -127,10 +123,7 @@ bot.command("me", async (ctx) => {
     chatInfo +
     "\n\n" +
     "User info: \n" +
-    userInfo +
-    "\n\n" +
-    "Message info: \n" +
-    messageInfo;
+    userInfo;
   console.log(text.length);
   if (text.length < 4096) {
     ctx.replyWithHTML(text);
