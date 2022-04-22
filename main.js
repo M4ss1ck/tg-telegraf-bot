@@ -233,12 +233,13 @@ bot.on("inline_query", async (ctx) => {
     },
     ...markup,
   }));
-  //console.log(recipes);
-  return await ctx.answerInlineQuery(recipes, { cache_time: 1 });
+  return await ctx
+    .answerInlineQuery(recipes, { cache_time: 5, is_personal: true })
+    .catch((e) => console.log("ERROR WITH INLINE QUERY\n", e));
 });
 
 bot.on("chosen_inline_result", ({ chosenInlineResult }) => {
-  console.log("chosen inline result", chosenInlineResult);
+  console.log("Chosen inline result:\n", chosenInlineResult);
 });
 
 bot.command(["c", "calc"], (ctx) => {
