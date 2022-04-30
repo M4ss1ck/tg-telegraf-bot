@@ -80,6 +80,7 @@ bot.command(["grupo", "group", "promo", "spam"], (ctx) => {
       Markup.button.url("Canal", "https://t.me/wasting_time_pro"),
     ],
     [Markup.button.callback("Borrar", "del")],
+    [Markup.button.webApp("Blog", "https://wastingblog.gatsbyjs.io/")], // https://wastingblog.gatsbyjs.io/
   ]);
   const text =
     "Sea usted bienvenid@ a la comunidad de <b>Wasting Time</b>. Donde podrá pasar tiempo con sus amigos, compartir memes, jugar a encontrar el lobo y probablemente morir en el intento.";
