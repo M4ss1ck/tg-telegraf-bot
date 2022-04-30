@@ -74,17 +74,20 @@ bot.action("enviarBD", async (ctx) => {
 });
 
 bot.command(["grupo", "group", "promo", "spam"], (ctx) => {
-  const keyboard = Markup.inlineKeyboard([
+  let buttons = [
     [
       Markup.button.url("Grupo", "https://t.me/juestin_taim"),
       Markup.button.url("Canal", "https://t.me/wasting_time_pro"),
     ],
-    [
-      Markup.button.webApp("Wasting Blog", "https://wastingblog.gatsbyjs.io/"), // https://wastingblog.gatsbyjs.io/
+  ];
+  if (ctx.chat.type === "private") {
+    buttons.push([
+      Markup.button.webApp("Wasting Blog", "https://wastingblog.gatsbyjs.io/"),
       Markup.button.webApp("Massick's Blog", "https://massick.gatsbyjs.io/"),
-    ],
-    [Markup.button.callback("Borrar", "del")],
-  ]);
+    ]);
+  }
+  buttons.push([Markup.button.callback("Borrar", "del")]);
+  const keyboard = Markup.inlineKeyboard(buttons);
   const text =
     "Sea usted bienvenid@ a la comunidad de <b>Wasting Time</b>. Donde podrá pasar tiempo con sus amigos, compartir memes, jugar a encontrar el lobo y probablemente morir en el intento.";
 
