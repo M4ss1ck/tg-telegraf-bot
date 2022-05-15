@@ -255,7 +255,7 @@ bot.command(["c", "calc"], (ctx) => {
   console.log(math);
   if (math === "") {
     ctx.replyWithHTML(
-      `Debe introducir una expresión matemática.\nEjemplos: <pre>/calc 2+3^6</pre>\n<pre>/calc PI^4</pre>\n<pre>/calc 25346*3456/32</pre>`,
+      `Debe introducir una expresión matemática.\nEjemplos: <code>/calc 2+3^6</code>\n<code>/calc PI^4</code>\n<code>/calc 25346*3456/32</code>`,
       {
         reply_to_message_id: ctx.message.message_id,
       }
@@ -264,7 +264,7 @@ bot.command(["c", "calc"], (ctx) => {
     try {
       let result = parser.parse(math).simplify();
       console.log("El resultado de " + math + " es " + result);
-      ctx.replyWithHTML(`<pre>${result}</pre>`, {
+      ctx.replyWithHTML(`<code>${result}</code>`, {
         reply_to_message_id: ctx.message.message_id,
       });
     } catch (error) {
@@ -272,7 +272,7 @@ bot.command(["c", "calc"], (ctx) => {
         .replace(/"/g, " ")
         .replace(/,/g, ",\n")
         .replace(/{/g, "\n {");
-      ctx.replyWithHTML(`<pre>${errorMessage}</pre>`, {
+      ctx.replyWithHTML(`<code>${errorMessage}</code>`, {
         reply_to_message_id: ctx.message.message_id,
       });
     }
@@ -280,13 +280,13 @@ bot.command(["c", "calc"], (ctx) => {
 });
 bot.command(["start", "jelou"], (ctx) => {
   ctx.replyWithHTML(
-    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía <pre>/ayuda</pre> para ver algunas opciones`
+    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía <code>/ayuda</code> para ver algunas opciones`
   );
 });
 
 bot.command(["ayuda", "help"], (ctx) => {
   ctx.replyWithHTML(
-    `<b>Comandos disponibles:</b>\n<pre>/ayuda</pre> - este comando 🚶‍♂️\n<pre>/calc</pre> o <pre>/c</pre> - calcular una operación matemática\n<pre>/grupo</pre> o <pre>/promo</pre> - Información sobre la comunidad del bot\n<pre>/info</pre> - información sobre el mensaje respondido\n<pre>/me</pre> - información sobre el bot y el usuario\n<pre>/ud</pre> - buscar palabras o frases en Urban Dictionary\n<pre>/nick</pre> -crear/cambiar nick usado por el bot\n<pre>/poll</pre> - crear encuestas de más de 10 opciones`
+    `<b>Comandos disponibles:</b>\n<code>/ayuda</code> - este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> - calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> - Información sobre la comunidad del bot\n<code>/info</code> - información sobre el mensaje respondido\n<code>/me</code> - información sobre el bot y el usuario\n<code>/ud</code> - buscar palabras o frases en Urban Dictionary\n<code>/nick</code> -crear/cambiar nick usado por el bot\n<code>/poll</code> - crear encuestas de más de 10 opciones`
   );
 });
 
@@ -312,7 +312,7 @@ bot.command("quit", (ctx) => {
 
 bot.hears(/^\/(s|s@\w+)(\/)?$/i, (ctx) =>
   ctx.replyWithHTML(
-    `Debe escoger qué parte del mensaje desea reemplazar y con qué desea hacerlo.\nPor ejemplo, si tenemos un mensaje que diga "Eres feo" y queremos transformarlo en "Eres hermoso", debemos usar <pre>/s/feo/hermoso</pre> respondiendo dicho mensaje.\n\n<b>Nota:</b> Si el bot es administrador, borrará nuestro mensaje`,
+    `Debe escoger qué parte del mensaje desea reemplazar y con qué desea hacerlo.\nPor ejemplo, si tenemos un mensaje que diga "Eres feo" y queremos transformarlo en "Eres hermoso", debemos usar <code>/s/feo/hermoso</code> respondiendo dicho mensaje.\n\n<b>Nota:</b> Si el bot es administrador, borrará nuestro mensaje`,
     {
       reply_to_message_id: ctx.message.message_id,
     }
