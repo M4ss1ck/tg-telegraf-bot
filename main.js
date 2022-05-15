@@ -286,7 +286,7 @@ bot.command(["start", "jelou"], (ctx) => {
 
 bot.command(["ayuda", "help"], (ctx) => {
   ctx.replyWithHTML(
-    `<b>Comandos disponibles:</b>\n<code>/ayuda</code> - este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> - calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> - Información sobre la comunidad del bot\n<code>/info</code> - información sobre el mensaje respondido\n<code>/me</code> - información sobre el bot y el usuario\n<code>/ud</code> - buscar palabras o frases en Urban Dictionary\n<code>/nick</code> -crear/cambiar nick usado por el bot\n<code>/poll</code> - crear encuestas de más de 10 opciones`
+    `<b>Comandos disponibles:</b>\n<code>/ayuda</code> --- este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> --- calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> --- Información sobre la comunidad del bot\n<code>/info</code> --- información sobre el mensaje respondido\n<code>/me</code> --- información sobre el bot y el usuario\n<code>/ud</code> --- buscar palabras o frases en Urban Dictionary\n<code>/nick</code> --- crear/cambiar nick usado por el bot\n<code>/poll</code> --- crear encuestas de más de 10 opciones`
   );
 });
 
