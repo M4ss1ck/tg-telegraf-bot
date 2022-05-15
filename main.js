@@ -280,7 +280,13 @@ bot.command(["c", "calc"], (ctx) => {
 });
 bot.command(["start", "jelou"], (ctx) => {
   ctx.replyWithHTML(
-    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía /ayuda para ver algunas opciones`
+    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía <pre>/ayuda</pre> para ver algunas opciones`
+  );
+});
+
+bot.command(["ayuda", "help"], (ctx) => {
+  ctx.replyWithHTML(
+    `<b>Comandos disponibles:</b>\n<pre>/ayuda</pre> - este comando 🚶‍♂️\n<pre>/calc</pre> o <pre>/c</pre> - calcular una operación matemática\n<pre>/grupo</pre> o <pre>/promo</pre> - Información sobre la comunidad del bot\n<pre>/info</pre> - información sobre el mensaje respondido\n<pre>/me</pre> - información sobre el bot y el usuario\n<pre>/ud</pre> - buscar palabras o frases en Urban Dictionary\n<pre>/nick</pre> -crear/cambiar nick usado por el bot\n<pre>/poll</pre> - crear encuestas de más de 10 opciones`
   );
 });
 
