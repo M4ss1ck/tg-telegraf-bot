@@ -2,17 +2,20 @@ import { Telegraf, Markup } from "telegraf";
 import { Parser } from "expr-eval";
 import axios from "axios";
 import Twig from "twig";
-import { setRango, adornarRango } from "./utils.js";
-import {
-  query,
-  anotherQuery,
-  updateUserStat,
-  exportTable,
-  importTable,
-  borrarBD,
-  checkIfCmdProceed,
-} from "./db.js";
-import { meaning } from "./scraping.js";
+
+//import { setRango, adornarRango } from "./utils.js";
+
+// import {
+//   query,
+//   anotherQuery,
+//   updateUserStat,
+//   exportTable,
+//   importTable,
+//   borrarBD,
+//   checkIfCmdProceed,
+// } from "./db.js";
+
+//import { meaning } from "./scraping.js";
 
 const parser = new Parser({
   operators: {
@@ -46,32 +49,33 @@ let couple = [];
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.action("del", (ctx) => ctx.deleteMessage());
-bot.action("enviarBD", async (ctx) => {
-  await ctx
-    .replyWithDocument({
-      source: `filters.csv`,
-      caption: "Filtros exportados",
-      filename: "filters.csv",
-    })
-    .then(() => borrarBD("filters.csv"))
-    .catch((err) => console.log(err));
-  await ctx
-    .replyWithDocument({
-      source: `usuarios.csv`,
-      caption: "Usuarios exportados",
-      filename: "usuarios.csv",
-    })
-    .then(() => borrarBD("usuarios.csv"))
-    .catch((err) => console.log(err));
-  await ctx
-    .replyWithDocument({
-      source: `config.csv`,
-      caption: "Filtros exportados",
-      filename: "config.csv",
-    })
-    .then(() => borrarBD("config.csv"))
-    .catch((err) => console.log(err));
-});
+
+// bot.action("enviarBD", async (ctx) => {
+//   await ctx
+//     .replyWithDocument({
+//       source: `filters.csv`,
+//       caption: "Filtros exportados",
+//       filename: "filters.csv",
+//     })
+//     .then(() => borrarBD("filters.csv"))
+//     .catch((err) => console.log(err));
+//   await ctx
+//     .replyWithDocument({
+//       source: `usuarios.csv`,
+//       caption: "Usuarios exportados",
+//       filename: "usuarios.csv",
+//     })
+//     .then(() => borrarBD("usuarios.csv"))
+//     .catch((err) => console.log(err));
+//   await ctx
+//     .replyWithDocument({
+//       source: `config.csv`,
+//       caption: "Filtros exportados",
+//       filename: "config.csv",
+//     })
+//     .then(() => borrarBD("config.csv"))
+//     .catch((err) => console.log(err));
+// });
 
 bot.command(["grupo", "group", "promo", "spam"], (ctx) => {
   let buttons = [
@@ -167,8 +171,6 @@ bot.command("info", async (ctx) => {
     );
   }
 });
-
-// comando ayuda
 
 bot.command(["jaja", "jajaja", "porn"], (ctx) => {
   if (!ctx.message.reply_to_message) {
@@ -397,188 +399,190 @@ bot.command("set_victim", (ctx) => {
     ctx.reply(`Ahora ${victim} es la victima`);
   }
 });
+
 // Sobre bases de datos
-bot.command("create_table", (ctx) => {
-  if (ctx.from.id.toString() === my_id) {
-    query(
-      "CREATE TABLE IF NOT EXISTS public.filters(filtro text NOT NULL, respuesta text NOT NULL, tipo text NOT NULL, chat text); ALTER TABLE IF EXISTS public.filters2 OWNER to postgres;"
-    );
-    query(
-      "CREATE TABLE IF NOT EXISTS public.usuarios(tg_id text NOT NULL, rep integer, fecha date, nick text, rango text, chat_ids text[]); ALTER TABLE IF EXISTS public.usuarios OWNER to postgres;"
-    );
-    query(
-      "CREATE TABLE IF NOT EXISTS public.config(chat_id text NOT NULL, opciones text); ALTER TABLE IF EXISTS public.config OWNER to postgres;"
-    );
-    ctx.reply("Tablas creadas");
-  }
-});
 
-bot.command("import", (ctx) => {
-  if (
-    ctx.from.id.toString() === my_id &&
-    ctx.message.reply_to_message &&
-    ctx.message.reply_to_message.document
-  ) {
-    const nombre = ctx.message.reply_to_message.document.file_name
-      .replace(/\d+/, "")
-      .replace(".csv", "");
-    ctx.telegram
-      .getFileLink(ctx.message.reply_to_message.document.file_id)
-      .then((res) => {
-        const url = res.href;
-        //console.log(res);
-        axios({ url }).then(async (res) => {
-          let data = res.data;
-          const rows = data.split("\n");
-          const columns_array = rows[0].split(",");
-          const column_names = columns_array.join(", ");
-          //console.log(rows[1] + "\n");
-          rows.map(async (row, index) => {
-            if (index > 0) {
-              let text = "";
+// bot.command("create_table", (ctx) => {
+//   if (ctx.from.id.toString() === my_id) {
+//     query(
+//       "CREATE TABLE IF NOT EXISTS public.filters(filtro text NOT NULL, respuesta text NOT NULL, tipo text NOT NULL, chat text); ALTER TABLE IF EXISTS public.filters2 OWNER to postgres;"
+//     );
+//     query(
+//       "CREATE TABLE IF NOT EXISTS public.usuarios(tg_id text NOT NULL, rep integer, fecha date, nick text, rango text, chat_ids text[]); ALTER TABLE IF EXISTS public.usuarios OWNER to postgres;"
+//     );
+//     query(
+//       "CREATE TABLE IF NOT EXISTS public.config(chat_id text NOT NULL, opciones text); ALTER TABLE IF EXISTS public.config OWNER to postgres;"
+//     );
+//     ctx.reply("Tablas creadas");
+//   }
+// });
 
-              if (nombre === "filters") {
-                const columns = row.split(",");
-                const filtro = columns[0];
-                const respuesta_temp = columns
-                  .slice(1, -2)
-                  .join(",")
-                  .replace(/""/g, '"');
-                const respuesta = respuesta_temp.substring(
-                  1,
-                  respuesta_temp.length - 1
-                );
-                const tipo = columns[columns.length - 2];
-                const chat = columns[columns.length - 1];
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES ('${filtro}', '${respuesta}', '${tipo}', '${chat}');`;
-                text = insert;
-              } else if (nombre === "config") {
-                const values_temp = row.split(",");
-                //const first_col = columns_array[0];
-                const values = "'" + values_temp.join("', '") + "'";
-                console.log("[values]: ", values, "end");
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
-                text = insert;
-              } else {
-                const values_temp = row.split(",");
-                //const first_col = columns_array[0];
-                const values = "'" + values_temp.join("', '") + "'";
+// bot.command("import", (ctx) => {
+//   if (
+//     ctx.from.id.toString() === my_id &&
+//     ctx.message.reply_to_message &&
+//     ctx.message.reply_to_message.document
+//   ) {
+//     const nombre = ctx.message.reply_to_message.document.file_name
+//       .replace(/\d+/, "")
+//       .replace(".csv", "");
+//     ctx.telegram
+//       .getFileLink(ctx.message.reply_to_message.document.file_id)
+//       .then((res) => {
+//         const url = res.href;
+//         //console.log(res);
+//         axios({ url }).then(async (res) => {
+//           let data = res.data;
+//           const rows = data.split("\n");
+//           const columns_array = rows[0].split(",");
+//           const column_names = columns_array.join(", ");
+//           //console.log(rows[1] + "\n");
+//           rows.map(async (row, index) => {
+//             if (index > 0) {
+//               let text = "";
 
-                const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
-                text = insert;
-              }
-              //console.log(text);
-              await anotherQuery(text).catch((err) => {
-                console.log(err);
-              });
-            }
-          });
-          ctx.reply("Tabla importada");
-        });
-      });
-  }
-});
+//               if (nombre === "filters") {
+//                 const columns = row.split(",");
+//                 const filtro = columns[0];
+//                 const respuesta_temp = columns
+//                   .slice(1, -2)
+//                   .join(",")
+//                   .replace(/""/g, '"');
+//                 const respuesta = respuesta_temp.substring(
+//                   1,
+//                   respuesta_temp.length - 1
+//                 );
+//                 const tipo = columns[columns.length - 2];
+//                 const chat = columns[columns.length - 1];
+//                 const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES ('${filtro}', '${respuesta}', '${tipo}', '${chat}');`;
+//                 text = insert;
+//               } else if (nombre === "config") {
+//                 const values_temp = row.split(",");
+//                 //const first_col = columns_array[0];
+//                 const values = "'" + values_temp.join("', '") + "'";
+//                 console.log("[values]: ", values, "end");
+//                 const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
+//                 text = insert;
+//               } else {
+//                 const values_temp = row.split(",");
+//                 //const first_col = columns_array[0];
+//                 const values = "'" + values_temp.join("', '") + "'";
 
-bot.command("export", (ctx) => {
-  if (ctx.from.id.toString() === my_id) {
-    const keyboard = Markup.inlineKeyboard([
-      [Markup.button.callback("Enviar archivos", "enviarBD")],
-    ]);
-    exportTable("filters").then(() => {
-      exportTable("usuarios").then(() => {
-        exportTable("config").then(() => {
-          ctx.reply("Tablas exportadas con éxito", keyboard);
-        });
-      });
-    });
-  }
-});
+//                 const insert = `INSERT INTO public.${nombre}(${column_names}) VALUES (${values});`;
+//                 text = insert;
+//               }
+//               //console.log(text);
+//               await anotherQuery(text).catch((err) => {
+//                 console.log(err);
+//               });
+//             }
+//           });
+//           ctx.reply("Tabla importada");
+//         });
+//       });
+//   }
+// });
 
-bot.command("add", (ctx) => {
-  if (ctx.message.reply_to_message) {
-    const trigger = ctx.message.text.replace("/add ", "");
-    const answer = JSON.stringify(ctx.message.reply_to_message);
-    let type;
-    if (ctx.message.reply_to_message.text) {
-      type = "text";
-    } else if (ctx.message.reply_to_message.photo) {
-      type = "photo";
-    } else if (ctx.message.reply_to_message.voice) {
-      type = "voice";
-    } else if (ctx.message.reply_to_message.video) {
-      type = "video";
-    } else if (ctx.message.reply_to_message.sticker) {
-      type = "sticker";
-    } else if (ctx.message.reply_to_message.audio) {
-      type = "audio";
-    } else {
-      type = "document";
-    }
-    query(
-      `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}';`
-    );
-    const values = [trigger, answer, type, ctx.chat.id];
-    query(
-      "INSERT INTO filters(filtro, respuesta, tipo, chat) VALUES($1, $2, $3, $4)",
-      values,
-      (err, res) => {
-        if (err) {
-          console.log("[ERROR UPDATING]");
-          console.log(err.stack);
-        } else {
-          console.log("[filtro agregado]");
-          ctx.replyWithHTML(`Nuevo filtro <code>${trigger}</code>`);
-        }
-      }
-    );
-  }
-});
+// bot.command("export", (ctx) => {
+//   if (ctx.from.id.toString() === my_id) {
+//     const keyboard = Markup.inlineKeyboard([
+//       [Markup.button.callback("Enviar archivos", "enviarBD")],
+//     ]);
+//     exportTable("filters").then(() => {
+//       exportTable("usuarios").then(() => {
+//         exportTable("config").then(() => {
+//           ctx.reply("Tablas exportadas con éxito", keyboard);
+//         });
+//       });
+//     });
+//   }
+// });
 
-bot.command("rem", (ctx) => {
-  const trigger = ctx.message.text.replace("/rem ", "");
-  query(
-    `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}'`
-  );
-  ctx.replyWithHTML(`Filtro <code>${trigger}</code> eliminado`);
-});
+// bot.command("add", (ctx) => {
+//   if (ctx.message.reply_to_message) {
+//     const trigger = ctx.message.text.replace("/add ", "");
+//     const answer = JSON.stringify(ctx.message.reply_to_message);
+//     let type;
+//     if (ctx.message.reply_to_message.text) {
+//       type = "text";
+//     } else if (ctx.message.reply_to_message.photo) {
+//       type = "photo";
+//     } else if (ctx.message.reply_to_message.voice) {
+//       type = "voice";
+//     } else if (ctx.message.reply_to_message.video) {
+//       type = "video";
+//     } else if (ctx.message.reply_to_message.sticker) {
+//       type = "sticker";
+//     } else if (ctx.message.reply_to_message.audio) {
+//       type = "audio";
+//     } else {
+//       type = "document";
+//     }
+//     query(
+//       `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}';`
+//     );
+//     const values = [trigger, answer, type, ctx.chat.id];
+//     query(
+//       "INSERT INTO filters(filtro, respuesta, tipo, chat) VALUES($1, $2, $3, $4)",
+//       values,
+//       (err, res) => {
+//         if (err) {
+//           console.log("[ERROR UPDATING]");
+//           console.log(err.stack);
+//         } else {
+//           console.log("[filtro agregado]");
+//           ctx.replyWithHTML(`Nuevo filtro <code>${trigger}</code>`);
+//         }
+//       }
+//     );
+//   }
+// });
 
-bot.command(["filters", "filtros"], (ctx) => {
-  query(
-    `SELECT * FROM filters WHERE chat = '${ctx.chat.id}'`,
-    [],
-    (err, res) => {
-      if (err) {
-        console.log("[ERROR UPDATING]");
-        console.log(err.stack);
-      } else {
-        let texto = [`Lista de filtros (${ctx.chat.id}): `];
-        for (let i = 0; i < res.rows.length; i++) {
-          const filtro_i = res.rows[i].filtro;
-          texto.push(filtro_i);
-        }
-        const salida = texto.join("\n");
-        ctx.reply(salida);
-      }
-    }
-  );
-});
+// bot.command("rem", (ctx) => {
+//   const trigger = ctx.message.text.replace("/rem ", "");
+//   query(
+//     `DELETE FROM filters WHERE filtro = '${trigger}' AND chat = '${ctx.chat.id}'`
+//   );
+//   ctx.replyWithHTML(`Filtro <code>${trigger}</code> eliminado`);
+// });
 
-bot.command(["filters_all", "filtros_todos"], (ctx) => {
-  query(`SELECT * FROM filters`, [], (err, res) => {
-    if (err) {
-      console.log("[ERROR UPDATING]");
-      console.log(err.stack);
-    } else {
-      let texto = [`Lista de filtros: `];
-      for (let i = 0; i < res.rows.length; i++) {
-        const filtro_i = `${res.rows[i].filtro} en ${res.rows[i].chat}`;
-        texto.push(filtro_i);
-      }
-      const salida = texto.join("\n");
-      ctx.reply(salida);
-    }
-  });
-});
+// bot.command(["filters", "filtros"], (ctx) => {
+//   query(
+//     `SELECT * FROM filters WHERE chat = '${ctx.chat.id}'`,
+//     [],
+//     (err, res) => {
+//       if (err) {
+//         console.log("[ERROR UPDATING]");
+//         console.log(err.stack);
+//       } else {
+//         let texto = [`Lista de filtros (${ctx.chat.id}): `];
+//         for (let i = 0; i < res.rows.length; i++) {
+//           const filtro_i = res.rows[i].filtro;
+//           texto.push(filtro_i);
+//         }
+//         const salida = texto.join("\n");
+//         ctx.reply(salida);
+//       }
+//     }
+//   );
+// });
+
+// bot.command(["filters_all", "filtros_todos"], (ctx) => {
+//   query(`SELECT * FROM filters`, [], (err, res) => {
+//     if (err) {
+//       console.log("[ERROR UPDATING]");
+//       console.log(err.stack);
+//     } else {
+//       let texto = [`Lista de filtros: `];
+//       for (let i = 0; i < res.rows.length; i++) {
+//         const filtro_i = `${res.rows[i].filtro} en ${res.rows[i].chat}`;
+//         texto.push(filtro_i);
+//       }
+//       const salida = texto.join("\n");
+//       ctx.reply(salida);
+//     }
+//   });
+// });
 
 // Urban Dictionary
 bot.command("ud", (ctx) => {
@@ -639,378 +643,379 @@ bot.command("ud", (ctx) => {
 });
 
 // reputacion
-bot.hears(/^\++$/, async (ctx) => {
-  if (ctx.message.reply_to_message) {
-    //id del remitente
-    const from_id = ctx.message.from.id;
-    //extraer nick y rep del remitente
-    query(
-      `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
-      [],
-      async (err, res) => {
-        if (err) {
-          console.log("[ERROR SELECTING] weird af");
-          console.log(err.stack);
-        } else {
-          // inicializar rep y nick del usuario
-          let from_rep = 0;
-          let from_nick = ctx.message.from.first_name;
-          let from_rango = setRango(from_rep);
-          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-          if (res.rows[0] === undefined) {
-            const values = [
-              from_id,
-              from_rep,
-              new Date(),
-              from_nick,
-              from_rango,
-            ];
-            await anotherQuery(
-              "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
-              values
-            );
-          } else {
-            // si todo va bien, tomo los valores
-            from_rep = res.rows[0].rep;
-            from_nick = res.rows[0].nick;
-            from_rango = setRango(from_rep);
-            // en caso de que el usuario no tenga rango
-            if (res.rows[0].rango === null) {
-              updateUserStat(from_id, "rango", from_rango);
-            }
-          }
 
-          //farmeo de puntos
-          if (
-            ctx.message.reply_to_message.from.id === from_id &&
-            from_id !== parseInt(my_id)
-          ) {
-            //responder a uno mismo
-            return ctx.replyWithHTML(
-              `<a href="tg://user?id=${from_id}">[${adornarRango(
-                from_rango
-              )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
-              { parseMode: "html" }
-            );
-          } else {
-            // aquí va el manejo de la reputación
-            const reply_id = ctx.message.reply_to_message.from.id;
+// bot.hears(/^\++$/, async (ctx) => {
+//   if (ctx.message.reply_to_message) {
+//     //id del remitente
+//     const from_id = ctx.message.from.id;
+//     //extraer nick y rep del remitente
+//     query(
+//       `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
+//       [],
+//       async (err, res) => {
+//         if (err) {
+//           console.log("[ERROR SELECTING] weird af");
+//           console.log(err.stack);
+//         } else {
+//           // inicializar rep y nick del usuario
+//           let from_rep = 0;
+//           let from_nick = ctx.message.from.first_name;
+//           let from_rango = setRango(from_rep);
+//           // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//           if (res.rows[0] === undefined) {
+//             const values = [
+//               from_id,
+//               from_rep,
+//               new Date(),
+//               from_nick,
+//               from_rango,
+//             ];
+//             await anotherQuery(
+//               "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+//               values
+//             );
+//           } else {
+//             // si todo va bien, tomo los valores
+//             from_rep = res.rows[0].rep;
+//             from_nick = res.rows[0].nick;
+//             from_rango = setRango(from_rep);
+//             // en caso de que el usuario no tenga rango
+//             if (res.rows[0].rango === null) {
+//               updateUserStat(from_id, "rango", from_rango);
+//             }
+//           }
 
-            //buscando al que sube la reputación en la BD
-            query(
-              `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
-              [],
-              async (err, res) => {
-                if (err) {
-                  console.log("[ERROR SELECTING] weird af");
-                  console.log(err.stack);
-                } else {
-                  // inicializar rep y nick del otro usuario
-                  let reply_rep = 1;
-                  let reply_nick = ctx.message.reply_to_message.from.first_name;
-                  let reply_rango = setRango(reply_rep);
-                  // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-                  if (res.rows[0] === undefined) {
-                    const values = [
-                      reply_id,
-                      reply_rep,
-                      new Date(),
-                      reply_nick,
-                      reply_rango,
-                    ];
+//           //farmeo de puntos
+//           if (
+//             ctx.message.reply_to_message.from.id === from_id &&
+//             from_id !== parseInt(my_id)
+//           ) {
+//             //responder a uno mismo
+//             return ctx.replyWithHTML(
+//               `<a href="tg://user?id=${from_id}">[${adornarRango(
+//                 from_rango
+//               )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+//               { parseMode: "html" }
+//             );
+//           } else {
+//             // aquí va el manejo de la reputación
+//             const reply_id = ctx.message.reply_to_message.from.id;
 
-                    await anotherQuery(
-                      "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
-                      values
-                    );
-                  } else {
-                    // si todo va bien, tomo los valores
-                    reply_rep = res.rows[0].rep;
-                    reply_nick = res.rows[0].nick;
-                    reply_rango = setRango(reply_rep + 1);
-                    // en caso de que el usuario no tenga rango
-                    if (res.rows[0].rango === null) {
-                      updateUserStat(reply_id, "rango", reply_rango);
-                    }
-                  }
+//             //buscando al que sube la reputación en la BD
+//             query(
+//               `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
+//               [],
+//               async (err, res) => {
+//                 if (err) {
+//                   console.log("[ERROR SELECTING] weird af");
+//                   console.log(err.stack);
+//                 } else {
+//                   // inicializar rep y nick del otro usuario
+//                   let reply_rep = 1;
+//                   let reply_nick = ctx.message.reply_to_message.from.first_name;
+//                   let reply_rango = setRango(reply_rep);
+//                   // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//                   if (res.rows[0] === undefined) {
+//                     const values = [
+//                       reply_id,
+//                       reply_rep,
+//                       new Date(),
+//                       reply_nick,
+//                       reply_rango,
+//                     ];
 
-                  query(
-                    `UPDATE usuarios SET rep = rep + 1, rango = '${setRango(
-                      reply_rep + 1
-                    )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
-                    [],
-                    (err, res) => {
-                      if (err) {
-                        console.log("[ERROR UPDATING]");
-                        console.log(err.stack);
-                      } else {
-                        console.log(
-                          "[rep y rango actualizados][mensaje respondido]"
-                        );
-                        reply_rango = res.rows[0].rango;
-                      }
-                    }
-                  );
+//                     await anotherQuery(
+//                       "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+//                       values
+//                     );
+//                   } else {
+//                     // si todo va bien, tomo los valores
+//                     reply_rep = res.rows[0].rep;
+//                     reply_nick = res.rows[0].nick;
+//                     reply_rango = setRango(reply_rep + 1);
+//                     // en caso de que el usuario no tenga rango
+//                     if (res.rows[0].rango === null) {
+//                       updateUserStat(reply_id, "rango", reply_rango);
+//                     }
+//                   }
 
-                  console.log(
-                    `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
-                      reply_rep + 1
-                    } puntos de reputación ahora, cortesía de [${adornarRango(
-                      from_rango
-                    )}] ${from_nick} (rep: ${from_rep})`
-                  );
-                  ctx.replyWithHTML(
-                    `<a href="tg://user?id=${reply_id}">[${adornarRango(
-                      reply_rango
-                    )}] ${reply_nick}</a> tiene ${
-                      reply_rep + 1
-                    } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
-                      from_rango
-                    )}] ${from_nick}</a>`
-                  );
-                }
-              }
-            );
-          }
-        }
-      }
-    );
-  }
-});
+//                   query(
+//                     `UPDATE usuarios SET rep = rep + 1, rango = '${setRango(
+//                       reply_rep + 1
+//                     )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
+//                     [],
+//                     (err, res) => {
+//                       if (err) {
+//                         console.log("[ERROR UPDATING]");
+//                         console.log(err.stack);
+//                       } else {
+//                         console.log(
+//                           "[rep y rango actualizados][mensaje respondido]"
+//                         );
+//                         reply_rango = res.rows[0].rango;
+//                       }
+//                     }
+//                   );
 
-bot.hears(/^(\-|—)+$/, async (ctx) => {
-  if (ctx.message.reply_to_message) {
-    //id del remitente
-    const from_id = ctx.message.from.id;
-    //extraer nick y rep del remitente
-    query(
-      `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
-      [],
-      async (err, res) => {
-        if (err) {
-          console.log("[ERROR SELECTING] weird af");
-          console.log(err.stack);
-        } else {
-          // inicializar rep y nick del usuario
-          let from_rep = 0;
-          let from_nick = ctx.message.from.first_name;
-          let from_rango = setRango(from_rep);
-          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-          if (res.rows[0] === undefined) {
-            const values = [
-              from_id,
-              from_rep,
-              new Date(),
-              from_nick,
-              from_rango,
-            ];
-            await anotherQuery(
-              "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
-              values
-            );
-          } else {
-            // si todo va bien, tomo los valores
-            from_rep = res.rows[0].rep;
-            from_nick = res.rows[0].nick;
-            from_rango = setRango(from_rep);
-            // en caso de que el usuario no tenga rango
-            if (res.rows[0].rango === null) {
-              updateUserStat(from_id, "rango", from_rango);
-            }
-          }
+//                   console.log(
+//                     `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
+//                       reply_rep + 1
+//                     } puntos de reputación ahora, cortesía de [${adornarRango(
+//                       from_rango
+//                     )}] ${from_nick} (rep: ${from_rep})`
+//                   );
+//                   ctx.replyWithHTML(
+//                     `<a href="tg://user?id=${reply_id}">[${adornarRango(
+//                       reply_rango
+//                     )}] ${reply_nick}</a> tiene ${
+//                       reply_rep + 1
+//                     } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
+//                       from_rango
+//                     )}] ${from_nick}</a>`
+//                   );
+//                 }
+//               }
+//             );
+//           }
+//         }
+//       }
+//     );
+//   }
+// });
 
-          //farmeo de puntos
-          if (
-            ctx.message.reply_to_message.from.id === from_id &&
-            from_id !== parseInt(my_id)
-          ) {
-            //responder a uno mismo
-            return ctx.replyWithHTML(
-              `<a href="tg://user?id=${from_id}">[${adornarRango(
-                from_rango
-              )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
-              { parseMode: "html" }
-            );
-          } else {
-            // aquí va el manejo de la reputación
-            const reply_id = ctx.message.reply_to_message.from.id;
+// bot.hears(/^(\-|—)+$/, async (ctx) => {
+//   if (ctx.message.reply_to_message) {
+//     //id del remitente
+//     const from_id = ctx.message.from.id;
+//     //extraer nick y rep del remitente
+//     query(
+//       `SELECT rep, nick FROM usuarios WHERE tg_id = '${from_id}'`,
+//       [],
+//       async (err, res) => {
+//         if (err) {
+//           console.log("[ERROR SELECTING] weird af");
+//           console.log(err.stack);
+//         } else {
+//           // inicializar rep y nick del usuario
+//           let from_rep = 0;
+//           let from_nick = ctx.message.from.first_name;
+//           let from_rango = setRango(from_rep);
+//           // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//           if (res.rows[0] === undefined) {
+//             const values = [
+//               from_id,
+//               from_rep,
+//               new Date(),
+//               from_nick,
+//               from_rango,
+//             ];
+//             await anotherQuery(
+//               "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+//               values
+//             );
+//           } else {
+//             // si todo va bien, tomo los valores
+//             from_rep = res.rows[0].rep;
+//             from_nick = res.rows[0].nick;
+//             from_rango = setRango(from_rep);
+//             // en caso de que el usuario no tenga rango
+//             if (res.rows[0].rango === null) {
+//               updateUserStat(from_id, "rango", from_rango);
+//             }
+//           }
 
-            //buscando al que sube la reputación en la BD
-            query(
-              `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
-              [],
-              async (err, res) => {
-                if (err) {
-                  console.log("[ERROR SELECTING] weird af");
-                  console.log(err.stack);
-                } else {
-                  // inicializar rep y nick del otro usuario
-                  let reply_rep = 0;
-                  let reply_nick = ctx.message.reply_to_message.from.first_name;
-                  let reply_rango = setRango(reply_rep);
-                  // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-                  if (res.rows[0] === undefined) {
-                    const values = [
-                      reply_id,
-                      reply_rep,
-                      new Date(),
-                      reply_nick,
-                      reply_rango,
-                    ];
+//           //farmeo de puntos
+//           if (
+//             ctx.message.reply_to_message.from.id === from_id &&
+//             from_id !== parseInt(my_id)
+//           ) {
+//             //responder a uno mismo
+//             return ctx.replyWithHTML(
+//               `<a href="tg://user?id=${from_id}">[${adornarRango(
+//                 from_rango
+//               )}] ${from_nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+//               { parseMode: "html" }
+//             );
+//           } else {
+//             // aquí va el manejo de la reputación
+//             const reply_id = ctx.message.reply_to_message.from.id;
 
-                    await anotherQuery(
-                      "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
-                      values
-                    );
-                  } else {
-                    // si todo va bien, tomo los valores
-                    reply_rep = res.rows[0].rep;
-                    reply_nick = res.rows[0].nick;
-                    reply_rango = setRango(reply_rep - 1);
-                    // en caso de que el usuario no tenga rango
-                    if (res.rows[0].rango === null) {
-                      updateUserStat(reply_id, "rango", reply_rango);
-                    }
-                  }
+//             //buscando al que sube la reputación en la BD
+//             query(
+//               `SELECT rep, nick, rango FROM usuarios WHERE tg_id = '${reply_id}'`,
+//               [],
+//               async (err, res) => {
+//                 if (err) {
+//                   console.log("[ERROR SELECTING] weird af");
+//                   console.log(err.stack);
+//                 } else {
+//                   // inicializar rep y nick del otro usuario
+//                   let reply_rep = 0;
+//                   let reply_nick = ctx.message.reply_to_message.from.first_name;
+//                   let reply_rango = setRango(reply_rep);
+//                   // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//                   if (res.rows[0] === undefined) {
+//                     const values = [
+//                       reply_id,
+//                       reply_rep,
+//                       new Date(),
+//                       reply_nick,
+//                       reply_rango,
+//                     ];
 
-                  query(
-                    `UPDATE usuarios SET rep = rep - 1, rango = '${setRango(
-                      reply_rep - 1
-                    )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
-                    [],
-                    (err, res) => {
-                      if (err) {
-                        console.log("[ERROR UPDATING]");
-                        console.log(err.stack);
-                      } else {
-                        console.log(
-                          "[rep y rango actualizados][mensaje respondido]"
-                        );
-                        reply_rango = res.rows[0].rango;
-                      }
-                    }
-                  );
+//                     await anotherQuery(
+//                       "INSERT INTO usuarios(tg_id, rep, fecha, nick, rango) VALUES($1, $2, $3, $4, $5)",
+//                       values
+//                     );
+//                   } else {
+//                     // si todo va bien, tomo los valores
+//                     reply_rep = res.rows[0].rep;
+//                     reply_nick = res.rows[0].nick;
+//                     reply_rango = setRango(reply_rep - 1);
+//                     // en caso de que el usuario no tenga rango
+//                     if (res.rows[0].rango === null) {
+//                       updateUserStat(reply_id, "rango", reply_rango);
+//                     }
+//                   }
 
-                  console.log(
-                    `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
-                      reply_rep - 1
-                    } puntos de reputación ahora, cortesía de [${adornarRango(
-                      from_rango
-                    )}] ${from_nick} (rep: ${from_rep})`
-                  );
-                  ctx.replyWithHTML(
-                    `<a href="tg://user?id=${reply_id}">[${adornarRango(
-                      reply_rango
-                    )}] ${reply_nick}</a> tiene ${
-                      reply_rep - 1
-                    } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
-                      from_rango
-                    )}] ${from_nick}</a>`
-                  );
-                }
-              }
-            );
-          }
-        }
-      }
-    );
-  }
-});
+//                   query(
+//                     `UPDATE usuarios SET rep = rep - 1, rango = '${setRango(
+//                       reply_rep - 1
+//                     )}', fecha = now() WHERE tg_id = '${reply_id}' RETURNING *`,
+//                     [],
+//                     (err, res) => {
+//                       if (err) {
+//                         console.log("[ERROR UPDATING]");
+//                         console.log(err.stack);
+//                       } else {
+//                         console.log(
+//                           "[rep y rango actualizados][mensaje respondido]"
+//                         );
+//                         reply_rango = res.rows[0].rango;
+//                       }
+//                     }
+//                   );
 
-bot.command("reset_rep", (ctx) => {
-  query(`UPDATE usuarios SET rep = 0`);
-  ctx.reply("Se ha reiniciado la reputación para todos los usuarios");
-});
+//                   console.log(
+//                     `[${adornarRango(reply_rango)}] ${reply_nick} tiene ${
+//                       reply_rep - 1
+//                     } puntos de reputación ahora, cortesía de [${adornarRango(
+//                       from_rango
+//                     )}] ${from_nick} (rep: ${from_rep})`
+//                   );
+//                   ctx.replyWithHTML(
+//                     `<a href="tg://user?id=${reply_id}">[${adornarRango(
+//                       reply_rango
+//                     )}] ${reply_nick}</a> tiene ${
+//                       reply_rep - 1
+//                     } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
+//                       from_rango
+//                     )}] ${from_nick}</a>`
+//                   );
+//                 }
+//               }
+//             );
+//           }
+//         }
+//       }
+//     );
+//   }
+// });
 
-bot.command("set_rep", (ctx) => {
-  if (
-    ctx.from.id.toString() === my_id &&
-    ctx.message.text.substring(9).length > 0
-  ) {
-    const dest_id = ctx.message.reply_to_message
-      ? ctx.message.reply_to_message.from.id
-      : ctx.message.text.match(/\d+/g)[0];
-    const dest_rep = ctx.message.reply_to_message
-      ? ctx.message.text.match(/(\d+|\-\d+)/g)[0]
-      : ctx.message.text.match(/(\d+|\-\d+)/g)[1];
-    query(
-      `SELECT rep, nick FROM usuarios WHERE tg_id = '${dest_id}'`,
-      [],
-      async (err, res) => {
-        if (err) {
-          console.log("[ERROR SELECTING] weird af");
-          console.log(err.stack);
-        } else {
-          let dest_nick = ctx.message.from.first_name;
-          // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-          if (res.rows[0] === undefined) {
-            const values = [
-              dest_id.toString(),
-              dest_nick,
-              parseInt(dest_rep),
-              new Date(),
-            ];
-            await anotherQuery(
-              "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
-              values
-            );
-            return ctx.replyWithHTML(
-              `Se ha registrado a ${dest_nick} con reputación ${dest_rep}`
-            );
-          } else {
-            // si todo va bien, tomo los valores
-            dest_nick = res.rows[0].nick;
-            updateUserStat(dest_id, "rep", parseInt(dest_rep));
-            return ctx.replyWithHTML(
-              `Se ha actualizado el registro de ${dest_nick} con reputación ${dest_rep}`
-            );
-          }
-        }
-      }
-    );
-  } else {
-    ctx.reply(
-      "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero"
-    );
-  }
-});
+// bot.command("reset_rep", (ctx) => {
+//   query(`UPDATE usuarios SET rep = 0`);
+//   ctx.reply("Se ha reiniciado la reputación para todos los usuarios");
+// });
 
-bot.command("nick", (ctx) => {
-  const new_nick = ctx.message.text.substring(6);
-  const id = ctx.message.from.id;
-  query(`SELECT nick FROM usuarios WHERE tg_id = '${id}'`, [], (err, res) => {
-    if (err) {
-      console.log("[ERROR SELECTING] weird af");
-      console.log(err.stack);
-    } else {
-      // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
-      if (res.rows[0] === undefined) {
-        const values = [id, 0, new Date(), new_nick];
-        query(
-          "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
-          values
-        );
-      } else {
-        // si todo va bien, cambio el nick
-        updateUserStat(id, "nick", new_nick);
-      }
-      console.log(
-        "El nick de " + ctx.message.from.first_name + " será " + new_nick
-      );
-      return ctx
-        .replyWithHTML(
-          "El nick de " + ctx.message.from.first_name + " será " + new_nick
-        )
-        .catch((error) => {
-          console.log(
-            "[/nick] Hubo un error agregando un usuario",
-            error.description
-          );
-          return ctx.replyWithHTML(error.description);
-        });
-    }
-  });
-});
+// bot.command("set_rep", (ctx) => {
+//   if (
+//     ctx.from.id.toString() === my_id &&
+//     ctx.message.text.substring(9).length > 0
+//   ) {
+//     const dest_id = ctx.message.reply_to_message
+//       ? ctx.message.reply_to_message.from.id
+//       : ctx.message.text.match(/\d+/g)[0];
+//     const dest_rep = ctx.message.reply_to_message
+//       ? ctx.message.text.match(/(\d+|\-\d+)/g)[0]
+//       : ctx.message.text.match(/(\d+|\-\d+)/g)[1];
+//     query(
+//       `SELECT rep, nick FROM usuarios WHERE tg_id = '${dest_id}'`,
+//       [],
+//       async (err, res) => {
+//         if (err) {
+//           console.log("[ERROR SELECTING] weird af");
+//           console.log(err.stack);
+//         } else {
+//           let dest_nick = ctx.message.from.first_name;
+//           // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//           if (res.rows[0] === undefined) {
+//             const values = [
+//               dest_id.toString(),
+//               dest_nick,
+//               parseInt(dest_rep),
+//               new Date(),
+//             ];
+//             await anotherQuery(
+//               "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
+//               values
+//             );
+//             return ctx.replyWithHTML(
+//               `Se ha registrado a ${dest_nick} con reputación ${dest_rep}`
+//             );
+//           } else {
+//             // si todo va bien, tomo los valores
+//             dest_nick = res.rows[0].nick;
+//             updateUserStat(dest_id, "rep", parseInt(dest_rep));
+//             return ctx.replyWithHTML(
+//               `Se ha actualizado el registro de ${dest_nick} con reputación ${dest_rep}`
+//             );
+//           }
+//         }
+//       }
+//     );
+//   } else {
+//     ctx.reply(
+//       "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero"
+//     );
+//   }
+// });
+
+// bot.command("nick", (ctx) => {
+//   const new_nick = ctx.message.text.substring(6);
+//   const id = ctx.message.from.id;
+//   query(`SELECT nick FROM usuarios WHERE tg_id = '${id}'`, [], (err, res) => {
+//     if (err) {
+//       console.log("[ERROR SELECTING] weird af");
+//       console.log(err.stack);
+//     } else {
+//       // en caso de no encontrar elementos en la tabla, agrega un nuevo usuario
+//       if (res.rows[0] === undefined) {
+//         const values = [id, 0, new Date(), new_nick];
+//         query(
+//           "INSERT INTO usuarios(tg_id, rep, fecha, nick) VALUES($1, $2, $3, $4)",
+//           values
+//         );
+//       } else {
+//         // si todo va bien, cambio el nick
+//         updateUserStat(id, "nick", new_nick);
+//       }
+//       console.log(
+//         "El nick de " + ctx.message.from.first_name + " será " + new_nick
+//       );
+//       return ctx
+//         .replyWithHTML(
+//           "El nick de " + ctx.message.from.first_name + " será " + new_nick
+//         )
+//         .catch((error) => {
+//           console.log(
+//             "[/nick] Hubo un error agregando un usuario",
+//             error.description
+//           );
+//           return ctx.replyWithHTML(error.description);
+//         });
+//     }
+//   });
+// });
 
 bot.command("like", async (ctx) => {
   const text =
@@ -1056,42 +1061,42 @@ bot.command("run", async (ctx) => {
   }
 });
 
-bot.command("love", async (ctx) => {
-  const now = new Date();
-  //console.log(now, loveTime, now - loveTime);
-  const time = "\nSiguiente pareja en " + timeToNext(now - loveTime);
-  if (now - loveTime > 1000 * 60 * 60 * 24) {
-    const query = "SELECT nick, tg_id FROM usuarios";
-    await anotherQuery(query).then((res) => {
-      const users = res.rows;
-      const i = Math.floor(Math.random() * users.length);
-      const j = Math.floor(Math.random() * users.length);
-      const lover1 = users[i];
-      const lover2 = users[j];
-      if (lover1.nick === lover2.nick) {
-        ctx.replyWithHTML(
-          `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> consigo mismo/a\n<em>${time}</em>`
-        );
-      } else {
-        ctx.replyWithHTML(
-          `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> 💘 <a href="tg://user?id=${lover2.tg_id}">${lover2.nick}</a>\n<em>${time}</em>`
-        );
-      }
-      loveTime = new Date();
-      couple = [lover1, lover2];
-    });
-  } else {
-    if (couple[0].nick === couple[1].nick) {
-      ctx.replyWithHTML(
-        `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> consigo mismo/a\n<em>${time}</em>`
-      );
-    } else {
-      ctx.replyWithHTML(
-        `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> 💘 <b>${couple[1].nick}</b>\n<em>${time}</em>`
-      );
-    }
-  }
-});
+// bot.command("love", async (ctx) => {
+//   const now = new Date();
+//   //console.log(now, loveTime, now - loveTime);
+//   const time = "\nSiguiente pareja en " + timeToNext(now - loveTime);
+//   if (now - loveTime > 1000 * 60 * 60 * 24) {
+//     const query = "SELECT nick, tg_id FROM usuarios";
+//     await anotherQuery(query).then((res) => {
+//       const users = res.rows;
+//       const i = Math.floor(Math.random() * users.length);
+//       const j = Math.floor(Math.random() * users.length);
+//       const lover1 = users[i];
+//       const lover2 = users[j];
+//       if (lover1.nick === lover2.nick) {
+//         ctx.replyWithHTML(
+//           `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> consigo mismo/a\n<em>${time}</em>`
+//         );
+//       } else {
+//         ctx.replyWithHTML(
+//           `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> 💘 <a href="tg://user?id=${lover2.tg_id}">${lover2.nick}</a>\n<em>${time}</em>`
+//         );
+//       }
+//       loveTime = new Date();
+//       couple = [lover1, lover2];
+//     });
+//   } else {
+//     if (couple[0].nick === couple[1].nick) {
+//       ctx.replyWithHTML(
+//         `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> consigo mismo/a\n<em>${time}</em>`
+//       );
+//     } else {
+//       ctx.replyWithHTML(
+//         `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> 💘 <b>${couple[1].nick}</b>\n<em>${time}</em>`
+//       );
+//     }
+//   }
+// });
 
 bot.command("poll", async (ctx) => {
   const text = ctx.message.text.substring(6);
@@ -1185,121 +1190,122 @@ bot.on("poll_answer", async (ctx) => {
 });
 
 // filtros
-bot.on("message", (ctx) => {
-  query("SELECT * FROM filters", [], (err, res) => {
-    if (err) {
-      console.log("[ERROR UPDATING]");
-      console.log(err.stack);
-    } else {
-      res.rows.map((trigger) => {
-        const regex = new RegExp("^" + trigger.filtro + "$", "i");
-        const respuesta = JSON.parse(trigger.respuesta);
-        const caption = respuesta.caption ? respuesta.caption : null;
-        if (trigger.chat === ctx.chat.id.toString()) {
-          if (
-            (ctx.message.text && ctx.message.text.match(regex)) ||
-            (ctx.message.caption && ctx.message.caption.match(regex))
-          ) {
-            console.log(trigger.respuesta + "\n" + respuesta);
-            if (trigger.tipo === "text") {
-              const entities = respuesta.entities || [];
-              console.log("Entities ", entities);
-              let texto_final = respuesta.text;
-              entities.map((entity) => {
-                const { offset, length, type } = entity;
-                let tag;
-                switch (type) {
-                  case "text_link":
-                    tag = "a";
-                    break;
-                  case "bold":
-                    tag = "b";
-                    break;
-                  case "italic":
-                    tag = "i";
-                    break;
-                  case "code":
-                    tag = "code";
-                    break;
-                  case "pre":
-                    tag = "pre";
-                    break;
-                  case "text_mention":
-                    tag = "a";
-                    break;
-                  case "strikethrough":
-                    tag = "s";
-                    break;
-                  case "underline":
-                    tag = "u";
-                    break;
-                  default:
-                    tag = "i";
-                    break;
-                }
-                console.log("Tag ", tag);
-                texto_final = texto_final.replace(
-                  respuesta.text.substr(offset, length),
-                  `<${tag} ${
-                    entity.url ? `href="${entity.url}"` : ``
-                  }>${respuesta.text.substr(offset, length)}</${tag}>`
-                );
-              });
 
-              ctx.replyWithHTML(texto_final, {
-                reply_to_message_id: ctx.message.message_id,
-              });
-            } else if (trigger.tipo === "photo") {
-              ctx
-                .replyWithPhoto(
-                  respuesta.photo[respuesta.photo.length - 1].file_id,
-                  {
-                    caption: caption,
-                    reply_to_message_id: ctx.message.message_id,
-                  }
-                )
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            } else if (trigger.tipo === "sticker") {
-              ctx
-                .replyWithSticker(respuesta.sticker.file_id, {
-                  reply_to_message_id: ctx.message.message_id,
-                })
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            } else if (trigger.tipo === "voice") {
-              ctx
-                .replyWithVoice(respuesta.voice.file_id, {
-                  caption: caption,
-                  reply_to_message_id: ctx.message.message_id,
-                })
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            } else if (trigger.tipo === "video") {
-              ctx
-                .replyWithVideo(respuesta.video.file_id, {
-                  caption: caption,
-                  reply_to_message_id: ctx.message.message_id,
-                })
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            } else if (trigger.tipo === "audio") {
-              ctx
-                .replyWithAudio(respuesta.audio.file_id, {
-                  caption: caption,
-                  reply_to_message_id: ctx.message.message_id,
-                })
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            } else {
-              ctx
-                .replyWithDocument(respuesta.document.file_id, {
-                  caption: caption,
-                  reply_to_message_id: ctx.message.message_id,
-                })
-                .catch((err) => ctx.reply(JSON.stringify(err)));
-            }
-          }
-        }
-      });
-    }
-  });
-});
+// bot.on("message", (ctx) => {
+//   query("SELECT * FROM filters", [], (err, res) => {
+//     if (err) {
+//       console.log("[ERROR UPDATING]");
+//       console.log(err.stack);
+//     } else {
+//       res.rows.map((trigger) => {
+//         const regex = new RegExp("^" + trigger.filtro + "$", "i");
+//         const respuesta = JSON.parse(trigger.respuesta);
+//         const caption = respuesta.caption ? respuesta.caption : null;
+//         if (trigger.chat === ctx.chat.id.toString()) {
+//           if (
+//             (ctx.message.text && ctx.message.text.match(regex)) ||
+//             (ctx.message.caption && ctx.message.caption.match(regex))
+//           ) {
+//             console.log(trigger.respuesta + "\n" + respuesta);
+//             if (trigger.tipo === "text") {
+//               const entities = respuesta.entities || [];
+//               console.log("Entities ", entities);
+//               let texto_final = respuesta.text;
+//               entities.map((entity) => {
+//                 const { offset, length, type } = entity;
+//                 let tag;
+//                 switch (type) {
+//                   case "text_link":
+//                     tag = "a";
+//                     break;
+//                   case "bold":
+//                     tag = "b";
+//                     break;
+//                   case "italic":
+//                     tag = "i";
+//                     break;
+//                   case "code":
+//                     tag = "code";
+//                     break;
+//                   case "pre":
+//                     tag = "pre";
+//                     break;
+//                   case "text_mention":
+//                     tag = "a";
+//                     break;
+//                   case "strikethrough":
+//                     tag = "s";
+//                     break;
+//                   case "underline":
+//                     tag = "u";
+//                     break;
+//                   default:
+//                     tag = "i";
+//                     break;
+//                 }
+//                 console.log("Tag ", tag);
+//                 texto_final = texto_final.replace(
+//                   respuesta.text.substr(offset, length),
+//                   `<${tag} ${
+//                     entity.url ? `href="${entity.url}"` : ``
+//                   }>${respuesta.text.substr(offset, length)}</${tag}>`
+//                 );
+//               });
+
+//               ctx.replyWithHTML(texto_final, {
+//                 reply_to_message_id: ctx.message.message_id,
+//               });
+//             } else if (trigger.tipo === "photo") {
+//               ctx
+//                 .replyWithPhoto(
+//                   respuesta.photo[respuesta.photo.length - 1].file_id,
+//                   {
+//                     caption: caption,
+//                     reply_to_message_id: ctx.message.message_id,
+//                   }
+//                 )
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             } else if (trigger.tipo === "sticker") {
+//               ctx
+//                 .replyWithSticker(respuesta.sticker.file_id, {
+//                   reply_to_message_id: ctx.message.message_id,
+//                 })
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             } else if (trigger.tipo === "voice") {
+//               ctx
+//                 .replyWithVoice(respuesta.voice.file_id, {
+//                   caption: caption,
+//                   reply_to_message_id: ctx.message.message_id,
+//                 })
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             } else if (trigger.tipo === "video") {
+//               ctx
+//                 .replyWithVideo(respuesta.video.file_id, {
+//                   caption: caption,
+//                   reply_to_message_id: ctx.message.message_id,
+//                 })
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             } else if (trigger.tipo === "audio") {
+//               ctx
+//                 .replyWithAudio(respuesta.audio.file_id, {
+//                   caption: caption,
+//                   reply_to_message_id: ctx.message.message_id,
+//                 })
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             } else {
+//               ctx
+//                 .replyWithDocument(respuesta.document.file_id, {
+//                   caption: caption,
+//                   reply_to_message_id: ctx.message.message_id,
+//                 })
+//                 .catch((err) => ctx.reply(JSON.stringify(err)));
+//             }
+//           }
+//         }
+//       });
+//     }
+//   });
+// });
 
 // Iniciar bot
 bot.launch();
