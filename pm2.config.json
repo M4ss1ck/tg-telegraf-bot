@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "massickbot",
-      "script": "main.js",
+      "script": "src/main.js",
       "node_args": "-r dotenv/config"
     }
   ]

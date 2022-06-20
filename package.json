@@ -2,9 +2,9 @@
   "name": "telegraf-bot",
   "version": "1.0.0",
   "description": "Telegram bot using telegraf",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "node -r dotenv/config main.js"
+    "start": "node -r dotenv/config src/main.js"
   },
   "author": "M4ss1ck",
   "license": "MIT",
