@@ -67,30 +67,7 @@ commands.command("ping", (ctx) => {
 });
 
 commands.command("me", async (ctx) => {
-  const tiempo = elapsedTime(inicio);
-  const botInfo = JSON.stringify(ctx.botInfo)
-    .replace(/"/g, " ")
-    .replace(/,/g, ",\n")
-    .replace(/{/g, "\n {");
-  const chatInfo = JSON.stringify(ctx.chat)
-    .replace(/"/g, " ")
-    .replace(/,/g, ",\n")
-    .replace(/{/g, "\n {");
-  const userInfo = JSON.stringify(ctx.from)
-    .replace(/"/g, " ")
-    .replace(/,/g, ",\n")
-    .replace(/{/g, "\n {");
-  const text =
-    "Bot info: \n" +
-    botInfo +
-    "\nTiempo activo: " +
-    tiempo +
-    "\n\n" +
-    "Chat info: \n" +
-    chatInfo +
-    "\n\n" +
-    "User info: \n" +
-    userInfo;
+  const text = `<pre>${JSON.stringify(ctx.botInfo, null, 2)}</pre>`;
   console.log(text.length);
   if (text.length < 4096) {
     ctx.replyWithHTML(text);
@@ -103,12 +80,8 @@ commands.command("me", async (ctx) => {
 commands.command("info", async (ctx) => {
   //console.log(ctx);
   if (ctx.message.reply_to_message) {
-    const msgInfo = JSON.stringify(ctx.message.reply_to_message)
-      .replace(/"/g, " ")
-      .replace(/,/g, ",\n")
-      .replace(/{/g, "\n {");
-
-    const text = "Información del mensaje:\n" + msgInfo;
+    const msgInfo = JSON.stringify(ctx.message.reply_to_message, null, 2);
+    const text = "<b>Información del mensaje:</b>\n<pre>" + msgInfo + "</pre>";
     if (text.length < 4096) {
       ctx.replyWithHTML(text, {
         reply_to_message_id: ctx.message.reply_to_message.message_id,
