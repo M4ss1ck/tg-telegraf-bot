@@ -13,6 +13,7 @@ specifiers:
   prisma: ^4.3.1
   telegraf: ^4.8.1
   twig: ^1.15.4
+  urban-dictionary-client: ^3.1.0
 
 dependencies:
   '@prisma/client': 4.3.1_prisma@4.3.1
@@ -24,6 +25,7 @@ dependencies:
   pg: 8.7.3
   telegraf: 4.8.1
   twig: 1.15.4
+  urban-dictionary-client: 3.1.0
 
 devDependencies:
   eslint: 8.23.1
@@ -212,6 +214,14 @@ packages:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
     dev: true
+
+  /axios/0.21.4:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+    dependencies:
+      follow-redirects: 1.14.9
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /axios/0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
@@ -1319,6 +1329,14 @@ packages:
   /undefsafe/2.0.5:
     resolution: {integrity: sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==}
     dev: true
+
+  /urban-dictionary-client/3.1.0:
+    resolution: {integrity: sha512-TGhBbhM7QzjFR+mRQ5k0AAoOZnUcTldAcpUNekXL9hH/GrOstRx1EyaBIbEE5RhM2oQGsY+TUBHPfB0M1JOi7w==}
+    dependencies:
+      axios: 0.21.4
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}

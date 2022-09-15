@@ -3,11 +3,12 @@ import actions from "./components/actions/index.js";
 import commands from "./components/commands/index.js";
 import reputation from "./components/commands/reputation.js";
 import filtros from "./components/commands/filtros.js";
+import urban from "./components/commands/ud.js";
 // import axios from "axios";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.use(actions).use(commands).use(reputation).use(filtros);
+bot.use(actions).use(commands).use(reputation).use(urban).use(filtros);
 
 bot.on("inline_query", async (ctx) => {
   const query = ctx.inlineQuery.query;
@@ -94,64 +95,6 @@ bot.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
     });
   }
 });
-
-// Urban Dictionary
-// bot.command("ud", (ctx) => {
-//   const query = ctx.message.text.substring(4);
-//   const options = {
-//     method: "GET",
-//     url: "https://mashape-community-urban-dictionary.p.rapidapi.com/define",
-//     params: { term: query },
-//     headers: {
-//       "x-rapidapi-host": "mashape-community-urban-dictionary.p.rapidapi.com",
-//       "x-rapidapi-key": process.env.RAPIDAPI_KEY,
-//     },
-//   };
-//   axios
-//     .request(options)
-//     .then((response) => {
-//       const cantDef = response.data.list.length;
-//       const data = response.data.list[0];
-//       let def = data.definition;
-//       let ejem = data.example;
-//       let votos_positivos = data.thumbs_up;
-//       let votos_negativos = data.thumbs_down;
-//       // el tamaño máximo de un mensaje son 4096 caracteres
-//       if (def.length > 2000) {
-//         def = def.substring(0, 2000) + "...";
-//       }
-//       if (ejem.length > 2000) {
-//         ejem = ejem.substring(0, 2000) + "...";
-//       }
-
-//       ctx.replyWithHTML(
-//         `<b>${query}:</b>\n\n<em>Def.</em>: ${def}\n\n<em>Ex.: ${ejem}</em>\n\n👍: ${votos_positivos} 👎: ${votos_negativos}`
-//       );
-//       // .then((res) => {
-//       //   //botonera
-//       //   let botones = [[], []];
-//       //   // quitar botón de la primera definición
-//       //   if (cantDef > 1) {
-//       //     for (let i = 1; i < cantDef; i++) {
-//       //       const boton = [
-//       //         bot.inlineButton(`Def ${i + 1}`, {
-//       //           callback: `/ud1 ${i} ${res.message_id} ${term}`,
-//       //         }),
-//       //       ];
-
-//       //       const fila = i <= cantDef / 2 ? 0 : 1;
-//       //       botones[fila] = [].concat(...botones[fila], boton);
-//       //     }
-//       //     const replyMarkup = bot.inlineKeyboard(botones);
-//       //     bot.editMessageReplyMarkup(
-//       //       { chatId: id, messageId: res.message_id },
-//       //       { replyMarkup }
-//       //     );
-//       //   }
-//       // });
-//     })
-//     .catch((error) => console.error(error));
-// });
 
 // bot.command("love", async (ctx) => {
 //   const now = new Date();
