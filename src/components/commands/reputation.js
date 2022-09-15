@@ -1,6 +1,6 @@
 import { Composer } from "telegraf";
 import { prisma } from "../db/prisma.js";
-import { setRango, adornarRango } from "../../utils/utils.js";
+import { setRango } from "../../utils/utils.js";
 
 const my_id = process.env.ADMIN_ID;
 
@@ -30,9 +30,7 @@ reputation.hears(/^\++$/, async (ctx) => {
 
     if (reply_id === from_id && from_id !== my_id) {
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${from_id}">[${adornarRango(remitente.rango)}] ${
-          remitente.nick
-        }</a> ha intentado hacer trampas... \n<em>qué idiota</em>`
+        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`
       );
     } else {
       const destinatario = await prisma.usuario.upsert({
@@ -54,13 +52,7 @@ reputation.hears(/^\++$/, async (ctx) => {
       });
 
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${reply_id}">[${adornarRango(
-          destinatario.rango
-        )}] ${destinatario.nick}</a> tiene ${
-          destinatario.rep
-        } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
-          remitente.rango
-        )}] ${remitente.nick}</a>`
+        `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`
       );
     }
   }
@@ -87,9 +79,7 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
 
     if (reply_id === from_id && from_id !== my_id) {
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${from_id}">[${adornarRango(remitente.rango)}] ${
-          remitente.nick
-        }</a> ha intentado hacer trampas... \n<em>qué idiota</em>`
+        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`
       );
     } else {
       const destinatario = await prisma.usuario.upsert({
@@ -111,13 +101,7 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
       });
 
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${reply_id}">[${adornarRango(
-          destinatario.rango
-        )}] ${destinatario.nick}</a> tiene ${
-          destinatario.rep
-        } puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">[${adornarRango(
-          remitente.rango
-        )}] ${remitente.nick}</a>`
+        `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`
       );
     }
   }
