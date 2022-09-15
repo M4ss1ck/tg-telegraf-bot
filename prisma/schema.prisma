@@ -25,5 +25,7 @@ model Filtro {
   tipo      String
   respuesta String
   global    Boolean @default(false)
-  chat      String?
+  chat      String  @default("global")
+
+  @@unique([filtro, chat])
 }
