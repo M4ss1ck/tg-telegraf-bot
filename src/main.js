@@ -2,11 +2,12 @@ import { Telegraf, Markup } from "telegraf";
 import actions from "./components/actions/index.js";
 import commands from "./components/commands/index.js";
 import reputation from "./components/commands/reputation.js";
+import filtros from "./components/commands/filtros.js";
 // import axios from "axios";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.use(actions).use(commands).use(reputation);
+bot.use(actions).use(commands).use(reputation).use(filtros);
 
 bot.on("inline_query", async (ctx) => {
   const query = ctx.inlineQuery.query;
