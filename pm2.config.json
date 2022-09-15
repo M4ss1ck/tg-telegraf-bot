@@ -3,7 +3,13 @@
     {
       "name": "massickbot",
       "script": "src/main.js",
-      "node_args": "-r dotenv/config"
+      "node_args": "-r dotenv/config",
+      "watch": ["src"],
+      "watch_delay": 1000,
+      "ignore_watch": ["node_modules", "prisma"],
+      "watch_options": {
+        "followSymlinks": false
+      }
     }
   ]
 }
