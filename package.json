@@ -2,7 +2,7 @@
   "name": "telegraf-bot",
   "version": "1.0.0",
   "description": "Telegram bot using telegraf",
-  "main": "src/main.js",
+  "main": "./src/main.js",
   "scripts": {
     "start": "nodemon -r dotenv/config src/main.js",
     "validate": "prisma validate",
