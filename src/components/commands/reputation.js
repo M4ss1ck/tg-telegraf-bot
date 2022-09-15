@@ -76,10 +76,10 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
       },
       create: {
         tg_id: from_id,
-        rep: 1,
+        rep: -1,
         nick: ctx.message.from.first_name,
         fecha: new Date(),
-        rango: setRango(1),
+        rango: setRango(-1),
       },
       update: {},
     });
