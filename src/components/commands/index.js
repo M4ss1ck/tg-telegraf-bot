@@ -25,11 +25,6 @@ const my_id = process.env.ADMIN_ID;
 let victim = process.env.VICTIM_ID;
 // hora en que arranca el bot
 const inicio = performance.now();
-// para las encuestas
-let encuestas = [];
-// para los enamorados
-let loveTime = 0;
-let couple = [];
 
 const commands = new Composer();
 
@@ -189,14 +184,6 @@ commands.command("say", (ctx) => {
   }
 });
 
-commands.command("quit", (ctx) => {
-  if (ctx.message.from.id.toString() == my_id) {
-    ctx
-      .reply("Me fui 👋")
-      .then(() => ctx.telegram.leaveChat(ctx.message.chat.id));
-  }
-});
-
 commands.command("tag", (ctx) => {
   const text = ctx.message.text.substring(5) ?? "";
   const number =
@@ -284,73 +271,6 @@ commands.command("run", async (ctx) => {
     }
   } else {
     ctx.reply("No tienes suficientes privilegios para ejecutar este comando");
-  }
-});
-
-commands.command("poll", async (ctx) => {
-  const text = ctx.message.text.substring(6);
-  if (text.length > 0) {
-    const arr = text.split(";");
-    if (arr.length < 3) {
-      ctx.reply("No hay suficientes opciones");
-    } else {
-      const question = arr[0].length > 250 ? arr[0].substring(0, 250) : arr[0];
-      const options = arr
-        .slice(1)
-        .map((element) =>
-          element.length > 100 ? element.substring(0, 100) : element
-        );
-      const extra = {
-        is_anonymous: false,
-        //protect_content: true,
-        //allows_multiple_answers: true,
-        //close_date: new Date(Date.now() + 60 * 60 * 1000),
-      };
-
-      const size = options.length;
-      const poll_count = Math.ceil(size / 10);
-      const part = Math.ceil(options.length / poll_count);
-      for (let i = 0; i < poll_count; i++) {
-        let option = options.slice(part * i, part * (i + 1));
-        const current_question =
-          poll_count > 1 ? `${question} (${i + 1}/${poll_count})` : question;
-        await ctx.telegram
-          .sendPoll(ctx.chat.id, current_question, option, extra)
-          .then((res) => {
-            const poll_chat = res.chat.id;
-            const poll_id = res.poll.id;
-            encuestas.push({
-              chat: poll_chat,
-              id: poll_id,
-              options: option,
-              question: current_question,
-            });
-          });
-      }
-    }
-  } else {
-    ctx.reply("Añade un título y opciones para la encuesta");
-  }
-});
-
-commands.command(["close", "cerrar"], async (ctx) => {
-  if (ctx.message.reply_to_message && ctx.message.reply_to_message.poll) {
-    commands.telegram
-      .stopPoll(ctx.chat.id, ctx.message.reply_to_message.message_id)
-      .then((res) => {
-        let text = `<b>${res.question}</b>\n`;
-        const total = res.total_voter_count;
-        res.options.map(
-          (e) =>
-            (text += `\n<code>${e.text}</code> (${e.voter_count}/${total})`)
-        );
-
-        ctx.replyWithHTML(text);
-      })
-      .catch((err) => {
-        console.log(err);
-        ctx.reply("No puedo cerrar la encuesta");
-      });
   }
 });
 
