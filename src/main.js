@@ -4,55 +4,20 @@ import commands from "./components/commands/index.js";
 import reputation from "./components/commands/reputation.js";
 import filtros from "./components/commands/filtros.js";
 import urban from "./components/commands/ud.js";
+import love from "./components/commands/love.js";
+import inline from "./components/inline/inline.js";
 // import axios from "axios";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.use(actions).use(commands).use(reputation).use(urban).use(filtros);
-
-bot.on("inline_query", async (ctx) => {
-  const query = ctx.inlineQuery.query;
-  const response = [
-    {
-      title: `Tu porcentaje de ${query}`,
-      description: `La efectividad está probada científicamente`,
-      message_text: `Soy ${Math.floor(Math.random() * 100)}% ${query}`,
-    },
-    {
-      title: `Probabilidad de que ${query}`,
-      description: `La efectividad está probada científicamente`,
-      message_text: `La probabilidad de que ${query} es de un ${Math.floor(
-        Math.random() * 100
-      )}%`,
-    },
-  ];
-  const markup = Markup.inlineKeyboard([
-    [
-      Markup.button.switchToCurrentChat(
-        "Probar otra vez",
-        "fanático de este bot"
-      ),
-    ],
-  ]);
-  const recipes = response.map(({ title, description, message_text }) => ({
-    type: "article",
-    id: title,
-    title: title,
-    description: description,
-    //thumb_url: thumbnail,
-    input_message_content: {
-      message_text: message_text,
-    },
-    ...markup,
-  }));
-  return await ctx
-    .answerInlineQuery(recipes, { cache_time: 5, is_personal: true })
-    .catch((e) => console.log("ERROR WITH INLINE QUERY\n", e));
-});
-
-bot.on("chosen_inline_result", ({ chosenInlineResult }) => {
-  console.log("Chosen inline result:\n", chosenInlineResult);
-});
+bot
+  .use(actions)
+  .use(commands)
+  .use(reputation)
+  .use(urban)
+  .use(love)
+  .use(inline)
+  .use(filtros);
 
 bot.hears(/^\/(s|s@\w+)(\/)?$/i, (ctx) =>
   ctx.replyWithHTML(
@@ -95,43 +60,6 @@ bot.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
     });
   }
 });
-
-// bot.command("love", async (ctx) => {
-//   const now = new Date();
-//   //console.log(now, loveTime, now - loveTime);
-//   const time = "\nSiguiente pareja en " + timeToNext(now - loveTime);
-//   if (now - loveTime > 1000 * 60 * 60 * 24) {
-//     const query = "SELECT nick, tg_id FROM usuarios";
-//     await anotherQuery(query).then((res) => {
-//       const users = res.rows;
-//       const i = Math.floor(Math.random() * users.length);
-//       const j = Math.floor(Math.random() * users.length);
-//       const lover1 = users[i];
-//       const lover2 = users[j];
-//       if (lover1.nick === lover2.nick) {
-//         ctx.replyWithHTML(
-//           `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> consigo mismo/a\n<em>${time}</em>`
-//         );
-//       } else {
-//         ctx.replyWithHTML(
-//           `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> 💘 <a href="tg://user?id=${lover2.tg_id}">${lover2.nick}</a>\n<em>${time}</em>`
-//         );
-//       }
-//       loveTime = new Date();
-//       couple = [lover1, lover2];
-//     });
-//   } else {
-//     if (couple[0].nick === couple[1].nick) {
-//       ctx.replyWithHTML(
-//         `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> consigo mismo/a\n<em>${time}</em>`
-//       );
-//     } else {
-//       ctx.replyWithHTML(
-//         `<b>Pareja del día:</b>\n\n<b>${couple[0].nick}</b> 💘 <b>${couple[1].nick}</b>\n<em>${time}</em>`
-//       );
-//     }
-//   }
-// });
 
 bot.on("poll_answer", async (ctx) => {
   const id = ctx.pollAnswer.poll_id;
