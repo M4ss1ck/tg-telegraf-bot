@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { setRango } from "../src/utils/utils.js";
 
 const prisma = new PrismaClient();
 
@@ -30,3 +29,29 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+function setRango(rep) {
+  if (rep > 249) {
+    return "ADMIN EMPODERADO";
+  } else if (rep > 199) {
+    return "JOHN WICK ";
+  } else if (rep > 149) {
+    return "FAMILIA (A LO TORETTO)";
+  } else if (rep > 99) {
+    return "ESTRELLA EN ASCENSO";
+  } else if (rep > 49) {
+    return "VICIOSO";
+  } else if (rep > 19) {
+    return "GRACIOSO (PERO NO TANTO)";
+  } else if (rep > -1) {
+    return "DESCONOCIDO";
+  } else if (rep > -11) {
+    return "REGGAETONERO";
+  } else if (rep > -21) {
+    return "LATINOAMERICANO";
+  } else if (rep > -31) {
+    return "YACEL";
+  } else {
+    return "SECUAZ DE ETECSA";
+  }
+}
