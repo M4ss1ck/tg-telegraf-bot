@@ -29,3 +29,17 @@ model Filtro {
 
   @@unique([filtro, chat])
 }
+
+model Encuesta {
+  id       String   @id
+  chat     Int
+  question String
+  options  Option[]
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  name       String
+  encuestaId String
+  encuesta   Encuesta @relation(fields: [encuestaId], references: [id], onDelete: Cascade)
+}
