@@ -1,10 +1,7 @@
-import { Composer, Markup } from "telegraf";
+import { Composer } from "telegraf";
 import { prisma } from "../db/prisma.js";
 
 const polls = new Composer();
-
-// TODO: save polls in DB
-let encuestas = [];
 
 polls.command("poll", async (ctx) => {
   const text = ctx.message.text.substring(6);
@@ -14,7 +11,7 @@ polls.command("poll", async (ctx) => {
       ctx.reply("No hay suficientes opciones");
     } else {
       const question = arr[0].length > 250 ? arr[0].substring(0, 250) : arr[0];
-      const options = arr
+      const pollOptions = arr
         .slice(1)
         .map((element) =>
           element.length > 100 ? element.substring(0, 100) : element
@@ -26,11 +23,11 @@ polls.command("poll", async (ctx) => {
         //close_date: new Date(Date.now() + 60 * 60 * 1000),
       };
 
-      const size = options.length;
+      const size = pollOptions.length;
       const poll_count = Math.ceil(size / 10);
-      const part = Math.ceil(options.length / poll_count);
+      const part = Math.ceil(pollOptions.length / poll_count);
       for (let i = 0; i < poll_count; i++) {
-        let option = options.slice(part * i, part * (i + 1));
+        let option = pollOptions.slice(part * i, part * (i + 1));
         const current_question =
           poll_count > 1 ? `${question} (${i + 1}/${poll_count})` : question;
         await ctx.telegram
@@ -38,11 +35,21 @@ polls.command("poll", async (ctx) => {
           .then((res) => {
             const poll_chat = res.chat.id;
             const poll_id = res.poll.id;
-            encuestas.push({
-              chat: poll_chat,
-              id: poll_id,
-              options: option,
-              question: current_question,
+            prisma.encuesta.upsert({
+              where: {
+                id: poll_id,
+              },
+              update: {},
+              create: {
+                id: poll_id,
+                chat: poll_chat,
+                question: current_question,
+                options: {
+                  create: pollOptions.map((option) => {
+                    return { name: option };
+                  }),
+                },
+              },
             });
           });
       }
@@ -75,20 +82,28 @@ polls.command(["close", "cerrar"], async (ctx) => {
 
 polls.on("poll_answer", async (ctx) => {
   const id = ctx.pollAnswer.poll_id;
-  const encuesta = encuestas.find((element) => element.id === id);
-  if (encuesta !== undefined) {
+  const encuesta = await prisma.encuesta.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      options: true,
+    },
+  });
+
+  if (encuesta) {
     const user = ctx.pollAnswer.user.first_name;
-    const option = ctx.pollAnswer.option_ids[0];
-    const option_text = encuesta.options[option];
+    const optionId = ctx.pollAnswer.option_ids[0];
+    const option = encuesta.options[optionId];
     const text =
-      option === undefined
+      optionId === undefined
         ? user +
           " retractó su voto en la encuesta <b>" +
           encuesta.question +
           "</b>"
         : user +
           " votó por la opción <b>" +
-          option_text +
+          option.name +
           "</b> en la encuesta <b>" +
           encuesta.question +
           "</b>";
