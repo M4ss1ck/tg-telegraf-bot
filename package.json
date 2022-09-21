@@ -39,5 +39,8 @@
   },
   "prisma": {
     "seed": "node prisma/seed.js"
+  },
+  "eslintConfig": {
+    "extends": "@antfu"
   }
 }
