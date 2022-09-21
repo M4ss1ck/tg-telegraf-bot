@@ -2,14 +2,16 @@
   "name": "telegraf-bot",
   "version": "1.0.0",
   "description": "Telegram bot using telegraf",
-  "main": "./src/main.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config src/main.js",
+    "start": "tsc -p ./tsconfig.json && node -r dotenv/config ./dist/index.js",
+    "build": "tsc -p ./tsconfig.json",
     "validate": "prisma validate",
     "db-pull": "prisma db pull",
     "generate": "prisma generate",
     "seed": "prisma generate && prisma db push && prisma db seed",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "watch": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node -r dotenv/config ./dist/index.js\""
   },
   "author": "M4ss1ck",
   "license": "MIT",
