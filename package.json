@@ -1,7 +1,10 @@
 {
   "name": "telegraf-bot",
+  "type": "module",
   "version": "1.0.0",
   "description": "Telegram bot using telegraf",
+  "author": "M4ss1ck",
+  "license": "MIT",
   "main": "./dist/main.js",
   "scripts": {
     "start": "tsc -p ./tsconfig.json && node -r dotenv/config ./dist/main.js",
@@ -15,9 +18,6 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
-  "author": "M4ss1ck",
-  "license": "MIT",
-  "type": "module",
   "dependencies": {
     "@prisma/client": "^4.3.1",
     "axios": "^0.25.0",
@@ -43,6 +43,16 @@
     "seed": "node prisma/seed.js"
   },
   "eslintConfig": {
-    "extends": "@antfu"
+    "extends": "@antfu",
+    "rules": {
+      "no-console": "off",
+      "no-restricted-syntax": [
+        "error",
+        {
+          "selector": "CallExpression[callee.object.name='console'][callee.property.name!=/^(log|warn|error|info|trace)$/]",
+          "message": "Unexpected property on console object was called"
+        }
+      ]
+    }
   }
 }
