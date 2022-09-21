@@ -1,4 +1,4 @@
-import { Telegraf, Markup } from "telegraf";
+import { Telegraf } from "telegraf";
 import actions from "./components/actions/index.js";
 import commands from "./components/commands/index.js";
 import reputation from "./components/commands/reputation.js";
@@ -11,7 +11,7 @@ import polls from "./components/commands/polls.js";
 import admin from "./components/commands/admin.js";
 // import axios from "axios";
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN ?? "");
 
 bot
   .use(admin)

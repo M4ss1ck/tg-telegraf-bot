@@ -1,4 +1,4 @@
-import { Composer } from "telegraf";
+import { Composer, Markup, Types } from "telegraf";
 import Twig from "twig";
 import { Parser } from "expr-eval";
 import { elapsedTime } from "../../utils/utils.js";
@@ -21,19 +21,19 @@ const parser = new Parser({
   },
 });
 
-const my_id = process.env.ADMIN_ID;
-let victim = process.env.VICTIM_ID;
+const my_id = process.env.ADMIN_ID ?? '123';
+let victim = process.env.VICTIM_ID ?? '123';
 // hora en que arranca el bot
 const inicio = performance.now();
 
 const commands = new Composer();
 
 commands.command(["grupo", "group", "promo", "spam"], (ctx) => {
-  let buttons = [
+  let buttons: any[][] = [
     [
       Markup.button.url("Grupo", "https://t.me/juestin_taim"),
       Markup.button.url("Canal", "https://t.me/wasting_time_pro"),
-    ],
+    ]
   ];
   if (ctx.chat.type === "private") {
     buttons.push([
@@ -101,7 +101,7 @@ commands.command(["jaja", "jajaja", "porn"], (ctx) => {
     ctx.replyWithHTML(
       `<a href="tg://user?id=${ctx.message.from.id}"> ${ctx.message.from.first_name}</a>, el comando se usa respondiendo un mensaje`
     );
-  } else if (ctx.message.reply_to_message.from.id.toString() == my_id) {
+  } else if (ctx.message.reply_to_message.from?.id.toString() == my_id) {
     ctx
       .replyWithVoice(
         { source: "./audio/risas.ogg" },
@@ -132,7 +132,7 @@ commands.command(["/gay", "/ghei"], (ctx) => {
 });
 
 commands.command(["c", "calc"], (ctx) => {
-  const index = ctx.message.entities[0].length + 1;
+  const index = ctx.message.entities ? ctx.message.entities[0].length + 1 : 0;
   const math = ctx.message.text.substring(index);
   console.log(math);
   if (math === "") {
@@ -187,10 +187,10 @@ commands.command("say", (ctx) => {
 commands.command("tag", (ctx) => {
   const text = ctx.message.text.substring(5) ?? "";
   const number =
-    text.length > 0 && text.match(/\d+/g) ? text.match(/\d+/g)[0] : 1;
-  const n = parseInt(number ?? 1) > 20 ? 20 : parseInt(number ?? 1);
-  console.log(text, number, n);
-  let new_victim = ctx.message.reply_to_message
+    text.length > 0 ? text.match(/\d+/g)?.[0] ?? '1' : '1';
+  const n = parseInt(number ?? '1') > 20 ? 20 : parseInt(number ?? 1);
+  // console.log(text, number, n);
+  let new_victim = ctx.message.reply_to_message && ctx.message.reply_to_message.from
     ? ctx.message.reply_to_message.from.id
     : victim;
 
@@ -204,15 +204,14 @@ commands.command("tag", (ctx) => {
   } else {
     // voy a usar async await para que la salida esté en orden
     // como en https://zellwk.com/blog/async-await-in-loops/
-    function sleep(ms) {
+    function sleep(ms: number) {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
-    const forEnOrden = async (_) => {
+    const forEnOrden = async () => {
       for (let i = 0; i < n; i++) {
         await sleep(1500).then(() => {
           ctx.replyWithHTML(
-            `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${
-              i + 1
+            `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${i + 1
             }</em>`
           );
         });
@@ -224,9 +223,9 @@ commands.command("tag", (ctx) => {
 
 commands.command("set_victim", (ctx) => {
   const text = ctx.message.text.substring(12) ?? "";
-  if (ctx.from.id.toString() === my_id && text.match(/\d+/g)) {
-    victim = text.match(/\d+/g)[0];
-    ctx.reply(`Ahora ${victim} es la victima`);
+  if (ctx.from.id.toString() === my_id) {
+    victim = text.match(/\d+/g)?.[0] ?? '';
+    victim !== '' && ctx.reply(`Ahora ${victim} es la victima`);
   }
 });
 
@@ -266,8 +265,8 @@ commands.command("run", async (ctx) => {
         ctx: ctx,
         here: ctx.chat.id,
       });
-    } catch (error) {
-      ctx.replyWithHTML(error.message);
+    } catch (error: any) {
+      if ('message' in error) ctx.replyWithHTML(error.message);
     }
   } else {
     ctx.reply("No tienes suficientes privilegios para ejecutar este comando");

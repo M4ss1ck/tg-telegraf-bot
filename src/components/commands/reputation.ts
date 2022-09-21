@@ -9,7 +9,7 @@ const reputation = new Composer();
 // reputacion
 
 reputation.hears(/^\++$/, async (ctx) => {
-  if (ctx.message.reply_to_message) {
+  if (ctx.message.reply_to_message && ctx.message.reply_to_message.from) {
     //id del remitente
     const from_id = ctx.message.from.id.toString();
 
@@ -59,7 +59,7 @@ reputation.hears(/^\++$/, async (ctx) => {
 });
 
 reputation.hears(/^(\-|—)+$/, async (ctx) => {
-  if (ctx.message.reply_to_message) {
+  if (ctx.message.reply_to_message && ctx.message.reply_to_message.from) {
     const from_id = ctx.message.from.id.toString();
 
     const remitente = await prisma.usuario.upsert({
@@ -121,32 +121,35 @@ reputation.command("set_rep", async (ctx) => {
     ctx.from.id.toString() === my_id &&
     ctx.message.text.substring(9).length > 0
   ) {
-    const dest_id = ctx.message.reply_to_message
+    const dest_id = ctx.message.reply_to_message && ctx.message.reply_to_message.from
       ? ctx.message.reply_to_message.from.id.toString()
-      : ctx.message.text.match(/\d+/g)[0];
+      : ctx.message.text.match(/\d+/g)?.[0];
     const dest_rep_string = ctx.message.reply_to_message
-      ? ctx.message.text.match(/(\d+|\-\d+)/g)[0]
-      : ctx.message.text.match(/(\d+|\-\d+)/g)[1];
+      ? ctx.message.text.match(/(\d+|\-\d+)/g)?.[0]
+      : ctx.message.text.match(/(\d+|\-\d+)/g)?.[1];
 
-    const dest_rep = parseInt(dest_rep_string ?? "1");
-    const destinatario = await prisma.usuario.upsert({
-      where: {
-        tg_id: dest_id,
-      },
-      create: {
-        tg_id: dest_id,
-        rep: dest_rep,
-        nick: ctx.message.reply_to_message.from.first_name,
-        fecha: new Date(),
-        rango: setRango(dest_rep),
-      },
-      update: {
-        rep: dest_rep,
-      },
-    });
-    return ctx.replyWithHTML(
-      `Se ha actualizado el registro de ${destinatario.nick} con reputación ${dest_rep}`
-    );
+    if (dest_id && ctx.message.reply_to_message?.from) {
+      const dest_rep = parseInt(dest_rep_string ?? "1");
+      const destinatario = await prisma.usuario.upsert({
+        where: {
+          tg_id: dest_id,
+        },
+        create: {
+          tg_id: dest_id,
+          rep: dest_rep,
+          nick: ctx.message.reply_to_message.from.first_name,
+          fecha: new Date(),
+          rango: setRango(dest_rep),
+        },
+        update: {
+          rep: dest_rep,
+        },
+      });
+      return ctx.replyWithHTML(
+        `Se ha actualizado el registro de ${destinatario.nick} con reputación ${dest_rep}`
+      );
+    }
+
   } else {
     ctx.reply(
       "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero"
@@ -177,9 +180,9 @@ reputation.command("nick", async (ctx) => {
   return ctx
     .replyWithHTML(
       "El nick de <b>" +
-        ctx.message.from.first_name +
-        "</b> será " +
-        destinatario.nick
+      ctx.message.from.first_name +
+      "</b> será " +
+      destinatario.nick
     )
     .catch((error) => {
       console.log(

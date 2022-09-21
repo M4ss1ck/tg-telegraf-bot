@@ -1,4 +1,5 @@
 import { Composer, Markup } from "telegraf";
+import { ReplyMessage } from "telegraf/typings/core/types/typegram.js";
 import { prisma } from "../db/prisma.js";
 
 const replacer = new Composer();
@@ -17,9 +18,14 @@ replacer.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
   replace = replace ?? "";
   console.log(search, replace);
   let text = "";
-  if (ctx.message.reply_to_message) {
-    let msg =
-      ctx.message.reply_to_message.text ?? ctx.message.reply_to_message.caption;
+  if (
+    ctx.message.reply_to_message
+  ) {
+    let msg = 'text' in ctx.message.reply_to_message
+      ? ctx.message.reply_to_message.text
+      : 'caption' in ctx.message.reply_to_message
+        ? ctx.message.reply_to_message.caption ?? ''
+        : ''
     msg = msg.replace('En realidad quisiste decir: \n\n"', "");
     text =
       '<b>En realidad quisiste decir:</b> \n\n"' +
