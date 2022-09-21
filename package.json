@@ -27,9 +27,12 @@
     "urban-dictionary-client": "^3.1.0"
   },
   "devDependencies": {
+    "@types/node": "^18.7.18",
     "eslint": "^8.23.1",
     "nodemon": "^2.0.19",
-    "prisma": "^4.3.1"
+    "prisma": "^4.3.1",
+    "tsc-watch": "^5.0.3",
+    "typescript": "^4.8.3"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
