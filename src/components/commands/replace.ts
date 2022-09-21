@@ -12,8 +12,9 @@ replacer.hears(/^\/(s|s@\w+)(\/)?$/i, ctx =>
 )
 
 replacer.hears(/^\/(s|s@\w+)\/(.+)?\/(.+)?/i, (ctx) => {
-  const [, , search, replace] = ctx.match
-  // replace = replace ?? ''
+  let [, , search, replace] = ctx.match
+  search = search ?? ''
+  replace = replace ?? ''
   // console.log(search, replace)
   let text = ''
   if (
