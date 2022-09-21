@@ -11,7 +11,9 @@
     "generate": "prisma generate",
     "seed": "prisma generate && prisma db push && prisma db seed",
     "studio": "prisma studio",
-    "watch": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node -r dotenv/config ./dist/main.js\""
+    "watch": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node -r dotenv/config ./dist/main.js\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "author": "M4ss1ck",
   "license": "MIT",
