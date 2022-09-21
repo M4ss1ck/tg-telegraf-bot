@@ -1,29 +1,29 @@
-import { Composer } from "telegraf";
+import { Composer } from 'telegraf'
 
-const admin = new Composer();
+const admin = new Composer()
 
-const my_id = process.env.ADMIN_ID ?? '123';
+const my_id = process.env.ADMIN_ID ?? '123'
 
 admin.command(
-  "quit",
+  'quit',
   Composer.acl(parseInt(my_id), async (ctx) => {
-    if (ctx.message.from.id.toString() == my_id) {
+    if (ctx.message.from.id.toString() === my_id) {
       ctx
-        .reply("Me fui 👋")
+        .reply('Me fui 👋')
         .then(() => {
-          ctx.chat.type !== "private"
+          ctx.chat.type !== 'private'
             ? ctx.telegram.leaveChat(ctx.message.chat.id)
-            : ctx.reply("Era jugando")
-        });
+            : ctx.reply('Era jugando')
+        })
     }
-  })
-);
+  }),
+)
 
 admin.command(
-  "admin",
+  'admin',
   Composer.acl(parseInt(my_id), (ctx) => {
-    ctx.reply("Eres administrador de este bot");
-  })
-);
+    ctx.reply('Eres administrador de este bot')
+  }),
+)
 
-export default admin;
+export default admin

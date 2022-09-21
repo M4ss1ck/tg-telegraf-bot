@@ -1,7 +1,7 @@
-import { Composer } from "telegraf";
+import { Composer } from 'telegraf'
 
-const actions = new Composer();
+const actions = new Composer()
 
-actions.action("del", (ctx) => ctx.deleteMessage());
+actions.action('del', ctx => ctx.deleteMessage())
 
-export default actions;
+export default actions
