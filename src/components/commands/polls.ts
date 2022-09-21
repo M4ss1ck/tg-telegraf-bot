@@ -32,10 +32,10 @@ polls.command("poll", async (ctx) => {
           poll_count > 1 ? `${question} (${i + 1}/${poll_count})` : question;
         await ctx.telegram
           .sendPoll(ctx.chat.id, current_question, option, extra)
-          .then((res) => {
+          .then(async (res) => {
             const poll_chat = res.chat.id;
             const poll_id = res.poll.id;
-            prisma.encuesta.upsert({
+            await prisma.encuesta.upsert({
               where: {
                 id: poll_id,
               },
@@ -50,7 +50,7 @@ polls.command("poll", async (ctx) => {
                   }),
                 },
               },
-            });
+            })
           });
       }
     }
@@ -60,7 +60,7 @@ polls.command("poll", async (ctx) => {
 });
 
 polls.command(["close", "cerrar"], async (ctx) => {
-  if (ctx.message.reply_to_message && ctx.message.reply_to_message.poll) {
+  if (ctx.message.reply_to_message && 'poll' in ctx.message.reply_to_message) {
     ctx.telegram
       .stopPoll(ctx.chat.id, ctx.message.reply_to_message.message_id)
       .then((res) => {
@@ -91,22 +91,24 @@ polls.on("poll_answer", async (ctx) => {
     },
   });
 
-  if (encuesta) {
+  // console.log("Encuesta: ", encuesta)
+
+  if (encuesta !== null) {
     const user = ctx.pollAnswer.user.first_name;
     const optionId = ctx.pollAnswer.option_ids[0];
     const option = encuesta.options[optionId];
     const text =
       optionId === undefined
         ? user +
-          " retractó su voto en la encuesta <b>" +
-          encuesta.question +
-          "</b>"
+        " retractó su voto en la encuesta <b>" +
+        encuesta.question +
+        "</b>"
         : user +
-          " votó por la opción <b>" +
-          option.name +
-          "</b> en la encuesta <b>" +
-          encuesta.question +
-          "</b>";
+        " votó por la opción <b>" +
+        option.name +
+        "</b> en la encuesta <b>" +
+        encuesta.question +
+        "</b>";
 
     await ctx.telegram.sendMessage(encuesta.chat, text, { parse_mode: "HTML" });
   }

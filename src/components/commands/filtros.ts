@@ -12,17 +12,17 @@ filtros.command("add", async (ctx) => {
     if (trigger.length > 0) {
       const answer = JSON.stringify(ctx.message.reply_to_message);
       let type;
-      if (ctx.message.reply_to_message.text) {
+      if ('text' in ctx.message.reply_to_message) {
         type = "text";
-      } else if (ctx.message.reply_to_message.photo) {
+      } else if ('photo' in ctx.message.reply_to_message) {
         type = "photo";
-      } else if (ctx.message.reply_to_message.voice) {
+      } else if ('voice' in ctx.message.reply_to_message) {
         type = "voice";
-      } else if (ctx.message.reply_to_message.video) {
+      } else if ('video' in ctx.message.reply_to_message) {
         type = "video";
-      } else if (ctx.message.reply_to_message.sticker) {
+      } else if ('sticker' in ctx.message.reply_to_message) {
         type = "sticker";
-      } else if (ctx.message.reply_to_message.audio) {
+      } else if ('audio' in ctx.message.reply_to_message) {
         type = "audio";
       } else {
         type = "document";
@@ -107,8 +107,8 @@ filtros.on("message", async (ctx) => {
     filters.some((filter) => {
       const regex = new RegExp("^" + filter.filtro + "$", "i");
       if (
-        (ctx.message.text && ctx.message.text.match(regex)) ||
-        (ctx.message.caption && ctx.message.caption.match(regex))
+        ('text' in ctx.message && ctx.message.text.match(regex)) ||
+        ('caption' in ctx.message && ctx.message.caption?.match(regex))
       ) {
         const respuesta = JSON.parse(filter.respuesta);
         const caption = respuesta.caption ?? null;
@@ -119,7 +119,8 @@ filtros.on("message", async (ctx) => {
           const entities = respuesta.entities || [];
           console.log("Entities:\n", entities);
           let texto_final = respuesta.text;
-          entities.map((entity) => {
+          // FIXME: add the right type
+          entities.map((entity: any) => {
             const { offset, length, type } = entity;
             let tag;
             switch (type) {
@@ -154,8 +155,7 @@ filtros.on("message", async (ctx) => {
             console.log("Tag ", tag);
             texto_final = texto_final.replace(
               respuesta.text.substr(offset, length),
-              `<${tag}${
-                entity.url ? ` href="${entity.url}"` : ``
+              `<${tag}${entity.url ? ` href="${entity.url}"` : ``
               }>${respuesta.text.substr(offset, length)}</${tag}>`
             );
           });

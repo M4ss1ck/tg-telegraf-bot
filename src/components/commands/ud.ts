@@ -1,5 +1,5 @@
 import { Composer } from "telegraf";
-import { search } from "urban-dictionary-client";
+// import { search } from "urban-dictionary-client";
 
 const urban = new Composer();
 

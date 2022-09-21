@@ -1,5 +1,4 @@
 import { Composer, Markup } from "telegraf";
-import { prisma } from "../db/prisma.js";
 
 const inline = new Composer();
 
@@ -32,14 +31,15 @@ inline.on("inline_query", async (ctx) => {
     id: title,
     title: title,
     description: description,
-    //thumb_url: thumbnail,
+    // thumb_url: thumbnail,
     input_message_content: {
       message_text: message_text,
     },
     ...markup,
   }));
+  // FIXME:
   return await ctx
-    .answerInlineQuery(recipes, { cache_time: 5, is_personal: true })
+    .answerInlineQuery(recipes as any, { cache_time: 5, is_personal: true })
     .catch((e) => console.log("ERROR WITH INLINE QUERY\n", e));
 });
 

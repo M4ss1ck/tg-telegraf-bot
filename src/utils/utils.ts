@@ -1,4 +1,4 @@
-function setRango(rep) {
+function setRango(rep: number) {
   if (rep > 249) {
     return "ADMIN EMPODERADO";
   } else if (rep > 199) {
@@ -24,7 +24,7 @@ function setRango(rep) {
   }
 }
 
-function adornarRango(rango) {
+function adornarRango(rango: string) {
   let rangoAdornado;
   switch (rango) {
     case "ADMIN EMPODERADO":
@@ -69,7 +69,7 @@ function adornarRango(rango) {
 }
 
 // calcular el tiempo que tarda el bot en arrancar
-const elapsedTime = (inicio) => {
+const elapsedTime = (inicio: number) => {
   const ahora = performance.now();
   const activo = ahora - inicio;
   // dar el resultado en dependencia del tiempo
@@ -88,7 +88,7 @@ const elapsedTime = (inicio) => {
   }
 };
 
-const timeToNext = (time) => {
+const timeToNext = (time: number) => {
   const current =
     time < 1000 * 60 * 60 * 24
       ? 1000 * 60 * 60 * 24 - time
@@ -108,8 +108,8 @@ const timeToNext = (time) => {
   }
 };
 
-function roundToAny(num, n = 2) {
-  return +(Math.round(num + `e+${n}`) + `e-${n}`);
+function roundToAny(num: number, n = 2) {
+  return +(Math.round(parseInt(num + `e+${n}`)) + `e-${n}`);
 }
 
 export { setRango, adornarRango, elapsedTime, timeToNext, roundToAny };

@@ -2,11 +2,11 @@
   "apps": [
     {
       "name": "massickbot",
-      "script": "src/main.js",
+      "script": "dist/main.js",
       "node_args": "-r dotenv/config",
-      "watch": ["src"],
+      "watch": ["dist"],
       "watch_delay": 1000,
-      "ignore_watch": ["node_modules", "prisma"],
+      "ignore_watch": ["node_modules", "prisma", "src"],
       "watch_options": {
         "followSymlinks": false
       }
