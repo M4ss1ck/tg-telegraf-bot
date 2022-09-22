@@ -9,11 +9,17 @@ import inline from './components/inline/inline.js'
 import replacer from './components/commands/replace.js'
 import polls from './components/commands/polls.js'
 import admin from './components/commands/admin.js'
+import createUser from './components/commands/createUser.js'
+import { getUsers } from './components/global/data.js'
 // import axios from "axios";
+
+// set global state
+global.USUARIOS = await getUsers()
 
 const bot = new Telegraf(process.env.BOT_TOKEN ?? '')
 
 bot
+  .use(createUser)
   .use(admin)
   .use(actions)
   .use(commands)
