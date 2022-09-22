@@ -1,6 +1,7 @@
 import { Composer } from 'telegraf'
 import { prisma } from '../db/prisma.js'
 import { setRango } from '../../utils/utils.js'
+import { getUsers } from '../global/data.js'
 
 const my_id = process.env.ADMIN_ID
 
@@ -52,6 +53,9 @@ reputation.hears(/^\++$/, async (ctx) => {
         },
       })
 
+      // set global state
+      global.USUARIOS = await getUsers()
+
       return ctx.replyWithHTML(
         `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`,
       )
@@ -102,6 +106,9 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
         },
       })
 
+      // set global state
+      global.USUARIOS = await getUsers()
+
       return ctx.replyWithHTML(
         `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`,
       )
@@ -115,6 +122,10 @@ reputation.command('reset_rep', async (ctx) => {
       rep: 0,
     },
   })
+
+  // set global state
+  global.USUARIOS = await getUsers()
+
   ctx.reply('Se ha reiniciado la reputación para todos los usuarios')
 })
 
@@ -147,6 +158,10 @@ reputation.command('set_rep', async (ctx) => {
           rep: dest_rep,
         },
       })
+
+      // set global state
+      global.USUARIOS = await getUsers()
+
       return ctx.replyWithHTML(
         `Se ha actualizado el registro de ${destinatario.nick} con reputación ${dest_rep}`,
       )
@@ -181,10 +196,8 @@ reputation.command('nick', async (ctx) => {
 
   return ctx
     .replyWithHTML(
-      `El nick de <b>${
-      ctx.message.from.first_name
-       }</b> será ${
-       destinatario.nick}`,
+      `El nick de <b>${ctx.message.from.first_name
+      }</b> será ${destinatario.nick}`,
     )
     .catch((error) => {
       console.log(
