@@ -59,13 +59,13 @@ anime.action(/getAnime/, async (ctx) => {
       const caption = `<b>${media.title.romaji ?? 'Title'}</b> (${media.id})
       Year: ${media.seasonYear ?? 'n/a'}  Episodes: ${media.episodes ?? 'n/a'}
       
-      <i>${media.description.replace(/<br>/g, '') ?? 'description n/a'}</i>`
+      <i>${media.description.replace(/<br>/g, '') ?? 'description n/a'}`
 
       const cover = media.coverImage.large
 
       ctx.replyWithPhoto(cover, {
         parse_mode: 'HTML',
-        caption,
+        caption: `${caption.slice(0, 1020)}</i>`,
       })
     }
     else {
