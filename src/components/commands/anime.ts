@@ -35,10 +35,9 @@ anime.command('anime', async (ctx) => {
     const media = results.Page?.media as Anime[]
     if (media && media.length > 0) {
       const buttons = []
-      for (const anime of media) {
-        console.log(anime)
+      for (const anime of media)
         buttons.push([Markup.button.callback(anime.title.romaji ?? 'placeholder text', `getAnime${anime.id}`)])
-      }
+
       const keyboard = Markup.inlineKeyboard(buttons)
       const text = `resultados para <b>${search}</b>`
 
@@ -55,7 +54,6 @@ anime.action(/getAnime/, async (ctx) => {
   if (!isNaN(animeId)) {
     // buscar en AniList
     const results = await getAnime(animeId)
-    // console.log(results)
     const media = results.Media as AnimeFull
     if (media) {
       const caption = `<b>${media.title.romaji ?? 'Title'}</b> (${media.id})
