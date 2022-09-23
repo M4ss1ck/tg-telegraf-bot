@@ -139,3 +139,50 @@ export async function getIsBirthdayCharacters(page = 1) {
 
   return result?.data?.data
 }
+
+export async function getCharacter(id: number) {
+  const query = `query ($id: Int){
+    Character(id: $id) {
+        id
+        name {
+          first
+          middle
+          last
+          full
+          native
+          userPreferred
+        }
+        image {
+          large
+          medium
+        }
+        description
+        dateOfBirth {
+          year
+          month
+          day
+        }
+        age
+        gender
+        bloodType
+        siteUrl
+      }
+    }`
+
+  const variables = {
+    id,
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+
+  const result = await axios.post(ANILIST_URL, {
+    query,
+    variables,
+    headers,
+  }).catch(err => console.log(err.message))
+
+  return result?.data?.data
+}
