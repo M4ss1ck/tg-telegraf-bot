@@ -2,6 +2,21 @@ import axios from 'axios'
 
 export const ANILIST_URL = 'https://graphql.anilist.co'
 
+export async function genericQuery(query: string, variables = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+
+  const result = await axios.post(ANILIST_URL, {
+    query,
+    variables,
+    headers,
+  }).catch(err => console.log(err.message))
+
+  return result?.data?.data
+}
+
 export async function getAnimes(search: string, page = 1) {
   const query = `
             query ($page: Int, $perPage: Int, $search: String) {
@@ -30,18 +45,8 @@ export async function getAnimes(search: string, page = 1) {
     perPage: 5,
   }
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-
-  const result = await axios.post(ANILIST_URL, {
-    query,
-    variables,
-    headers,
-  }).catch(err => console.log(err.message))
-
-  return result?.data?.data
+  const animes = await genericQuery(query, variables)
+  return animes
 }
 
 export async function getAnime(id: number) {
@@ -70,18 +75,8 @@ export async function getAnime(id: number) {
     id,
   }
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-
-  const result = await axios.post(ANILIST_URL, {
-    query,
-    variables,
-    headers,
-  }).catch(err => console.log(err.message))
-
-  return result?.data?.data
+  const anime = await genericQuery(query, variables)
+  return anime
 }
 
 export async function getIsBirthdayCharacters(page = 1) {
@@ -126,18 +121,8 @@ export async function getIsBirthdayCharacters(page = 1) {
     perPage: 10,
   }
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-
-  const result = await axios.post(ANILIST_URL, {
-    query,
-    variables,
-    headers,
-  }).catch(err => console.log(err.message))
-
-  return result?.data?.data
+  const bdChar = await genericQuery(query, variables)
+  return bdChar
 }
 
 export async function getCharacter(id: number) {
@@ -173,16 +158,6 @@ export async function getCharacter(id: number) {
     id,
   }
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
-
-  const result = await axios.post(ANILIST_URL, {
-    query,
-    variables,
-    headers,
-  }).catch(err => console.log(err.message))
-
-  return result?.data?.data
+  const character = await genericQuery(query, variables)
+  return character
 }
