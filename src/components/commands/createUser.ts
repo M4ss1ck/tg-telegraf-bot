@@ -21,9 +21,6 @@ createUser.use(async (ctx, next) => {
       update: {},
     })
   }
-  else {
-    console.log('User already exists')
-  }
   return next()
 })
 
