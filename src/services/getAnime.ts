@@ -83,3 +83,59 @@ export async function getAnime(id: number) {
 
   return result?.data?.data
 }
+
+export async function getIsBirthdayCharacters(page = 1) {
+  const query = `
+    query ($page: Int, $perPage: Int, $search: String) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          total
+          perPage
+        }
+        characters(isBirthday: true, search: $search) {
+          id
+          name {
+            first
+            middle
+            last
+            full
+            native
+            userPreferred
+          }
+          image {
+            large
+            medium
+          }
+          description
+          dateOfBirth {
+            year
+            month
+            day
+          }
+          age
+          gender
+          bloodType
+          siteUrl
+        }
+      }
+    }
+  `
+
+  const variables = {
+    page,
+    perPage: 10,
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+
+  const result = await axios.post(ANILIST_URL, {
+    query,
+    variables,
+    headers,
+  }).catch(err => console.log(err.message))
+
+  return result?.data?.data
+}
