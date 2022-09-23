@@ -10,6 +10,7 @@ import replacer from './components/commands/replace.js'
 import polls from './components/commands/polls.js'
 import admin from './components/commands/admin.js'
 import createUser from './components/commands/createUser.js'
+import anime from './components/commands/anime.js'
 import { getUsers } from './components/global/data.js'
 // import axios from "axios";
 
@@ -29,6 +30,7 @@ bot
   .use(inline)
   .use(replacer)
   .use(polls)
+  .use(anime)
   .use(filtros)
 
 // Iniciar bot
