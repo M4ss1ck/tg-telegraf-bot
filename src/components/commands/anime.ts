@@ -1,6 +1,6 @@
 import { Composer, Markup } from 'telegraf'
 
-import { getAnime, getAnimes } from '../../services/getAnime.js'
+import { getAnime, getAnimes, getCharacter, getIsBirthdayCharacters } from '../../services/getAnime.js'
 
 const anime = new Composer()
 
@@ -27,6 +27,32 @@ interface AnimeFull extends Anime {
   }
 }
 
+interface Character {
+  id: number
+  name: {
+    first: string
+    middle: string
+    last: string
+    full: string
+    native: string
+    userPreferred: string
+  }
+  image: {
+    large: string
+    medium: string
+  }
+  description: string
+  dateOfBirth: {
+    year: number
+    month: number
+    day: number
+  }
+  age: string
+  gender: string
+  bloodType: string
+  siteUrl: string
+}
+
 anime.command('anime', async (ctx) => {
   const search = ctx.message.text.replace(/^\/anime(@\w+)?\s+/i, '')
   if (search.length > 2) {
@@ -39,7 +65,7 @@ anime.command('anime', async (ctx) => {
         buttons.push([Markup.button.callback(anime.title.romaji ?? 'placeholder text', `getAnime${anime.id}`)])
 
       const keyboard = Markup.inlineKeyboard(buttons)
-      const text = `resultados para <b>${search}</b>`
+      const text = `Resultados para <b>${search}</b>`
 
       ctx.replyWithHTML(text, keyboard)
     }
@@ -62,6 +88,47 @@ anime.action(/getAnime/, async (ctx) => {
       <i>${media.description.replace(/<br>/g, '') ?? 'description n/a'}`
 
       const cover = media.coverImage.large
+
+      ctx.replyWithPhoto(cover, {
+        parse_mode: 'HTML',
+        caption: `${caption.slice(0, 1020)}</i>`,
+      })
+    }
+    else {
+      ctx.replyWithHTML('No se encontraron resultados o hubo un error')
+    }
+  }
+})
+
+anime.command('animebd', async (ctx) => {
+  const results = await getIsBirthdayCharacters()
+  const characters = results.Page?.characters as Character[]
+
+  if (characters && characters.length > 0) {
+    const buttons = []
+    for (const char of characters)
+      buttons.push([Markup.button.callback(char.name.full ?? 'error con el nombre', `getCharacter${char.id}`)])
+
+    const keyboard = Markup.inlineKeyboard(buttons)
+    const text = 'Personajes que celebran su cumpleaños hoy\n'
+
+    ctx.replyWithHTML(text, keyboard)
+  }
+})
+
+anime.action(/getCharacter/, async (ctx) => {
+  const characterId = parseInt(ctx.callbackQuery.data?.replace('getCharacter', '') ?? '')
+  if (!isNaN(characterId)) {
+    // buscar en AniList
+    const results = await getCharacter(characterId)
+    const character = results.Character as Character
+    if (character) {
+      const caption = `<a href="${character.siteUrl}">${character.name.full ?? 'Nombre'}</a> (${character.id})
+      Age: ${character.age ?? 'n/a'}  Gender: ${character.gender ?? 'n/a'}
+      
+      <i>${character.description.replace(/<br>/g, '') ?? 'description n/a'}`
+
+      const cover = character.image.large
 
       ctx.replyWithPhoto(cover, {
         parse_mode: 'HTML',
