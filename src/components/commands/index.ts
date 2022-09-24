@@ -25,6 +25,7 @@ const my_id = process.env.ADMIN_ID ?? '123'
 let victim = process.env.VICTIM_ID ?? '123'
 // hora en que arranca el bot
 const inicio = performance.now()
+console.log('performance.now() ', inicio)
 
 const commands = new Composer()
 
@@ -54,10 +55,10 @@ commands.command(['grupo', 'group', 'promo', 'spam'], (ctx) => {
 commands.command('ping', (ctx) => {
   const tiempo = elapsedTime(inicio)
   const botUsername = ctx.me
-  const botInfo = JSON.stringify(ctx.botInfo)
-    .replace(/"/g, '')
-    .replace(/,/g, ',\n')
-  console.log(botInfo)
+  // const botInfo = JSON.stringify(ctx.botInfo)
+  //   .replace(/"/g, '')
+  //   .replace(/,/g, ',\n')
+  // console.log(botInfo)
   ctx.reply(`[@${botUsername}] Tiempo activo: ${tiempo}`)
 })
 
