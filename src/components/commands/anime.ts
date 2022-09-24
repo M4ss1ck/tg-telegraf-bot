@@ -1,6 +1,6 @@
 import { Composer, Markup } from 'telegraf'
 
-import { getAnime, getAnimes, getCharacter, getIsBirthdayCharacters } from '../../services/getAnime.js'
+import { getAnime, getAnimes, getCharacter, getCharacters, getIsBirthdayCharacters } from '../../services/getAnime.js'
 
 const anime = new Composer()
 
@@ -54,7 +54,7 @@ interface Character {
 }
 
 anime.command('anime', async (ctx) => {
-  const search = ctx.message.text.replace(/^\/anime(@\w+)?\s+/i, '')
+  const search = ctx.message.text.replace(/^\/anime((@\w+)?\s+)?/i, '')
   if (search.length > 2) {
     // buscar en AniList
     const results = await getAnimes(search)
@@ -113,6 +113,25 @@ anime.command('animebd', async (ctx) => {
     const text = 'Personajes que celebran su cumpleaños hoy\n'
 
     ctx.replyWithHTML(text, keyboard)
+  }
+})
+
+anime.command('character', async (ctx) => {
+  const search = ctx.message.text.replace(/^\/character((@\w+)?\s+)?/i, '')
+  if (search.length > 2) {
+    const results = await getCharacters(search)
+    const characters = results.Page?.characters as Character[]
+
+    if (characters && characters.length > 0) {
+      const buttons = []
+      for (const char of characters)
+        buttons.push([Markup.button.callback(char.name.full ?? 'error con el nombre', `getCharacter${char.id}`)])
+
+      const keyboard = Markup.inlineKeyboard(buttons)
+      const text = `Resultados para <i>${search}</i>`
+
+      ctx.replyWithHTML(text, keyboard)
+    }
   }
 })
 
