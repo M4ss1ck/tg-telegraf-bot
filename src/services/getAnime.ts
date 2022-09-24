@@ -79,6 +79,53 @@ export async function getAnime(id: number) {
   return anime
 }
 
+export async function getCharacters(search: string, page = 1) {
+  const query = `
+    query ($page: Int, $perPage: Int, $search: String) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          total
+          perPage
+        }
+        characters(search: $search) {
+          id
+          name {
+            first
+            middle
+            last
+            full
+            native
+            userPreferred
+          }
+          image {
+            large
+            medium
+          }
+          description
+          dateOfBirth {
+            year
+            month
+            day
+          }
+          age
+          gender
+          bloodType
+          siteUrl
+        }
+      }
+    }
+  `
+
+  const variables = {
+    search,
+    page,
+    perPage: 10,
+  }
+
+  const characters = await genericQuery(query, variables)
+  return characters
+}
+
 export async function getIsBirthdayCharacters(page = 1) {
   const query = `
     query ($page: Int, $perPage: Int, $search: String) {
