@@ -25,7 +25,6 @@ const my_id = process.env.ADMIN_ID ?? '123'
 let victim = process.env.VICTIM_ID ?? '123'
 // hora en que arranca el bot
 const inicio = performance.now()
-console.log('performance.now() ', inicio)
 
 const commands = new Composer()
 
