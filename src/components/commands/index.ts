@@ -54,11 +54,9 @@ commands.command(['grupo', 'group', 'promo', 'spam'], (ctx) => {
 commands.command('ping', (ctx) => {
   const tiempo = elapsedTime(inicio)
   const botUsername = ctx.me
-  // const botInfo = JSON.stringify(ctx.botInfo)
-  //   .replace(/"/g, '')
-  //   .replace(/,/g, ',\n')
-  // console.log(botInfo)
-  ctx.reply(`[@${botUsername}] Tiempo activo: ${tiempo}`)
+  const messageTime = ctx.message.date
+  const delay = Math.round(Date.now() / 1000) - messageTime
+  ctx.reply(`[@${botUsername}] Tiempo activo: ${tiempo}\nV. respuesta: ${delay}ms`)
 })
 
 commands.command('me', async (ctx) => {
