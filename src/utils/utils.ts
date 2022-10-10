@@ -119,4 +119,4 @@ function roundToAny(num: number, n = 2) {
   return +(`${Math.round(parseInt(`${num}e+${n}`))}e-${n}`)
 }
 
-export { setRango, adornarRango, elapsedTime, timeToNext, roundToAny }
+export { convertMsToTime, setRango, adornarRango, elapsedTime, timeToNext, roundToAny }
