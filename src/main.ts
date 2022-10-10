@@ -11,6 +11,7 @@ import polls from './components/commands/polls.js'
 import admin from './components/commands/admin.js'
 import createUser from './components/commands/createUser.js'
 import anime from './components/commands/anime.js'
+import ban from './components/commands/ban.js'
 import { getUsers } from './components/global/data.js'
 // import axios from "axios";
 
@@ -22,6 +23,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN ?? '')
 bot
   .use(createUser)
   .use(admin)
+  .use(ban)
   .use(actions)
   .use(commands)
   .use(reputation)
