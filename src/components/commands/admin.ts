@@ -29,8 +29,8 @@ admin.command(
 admin.command(
   'users',
   Composer.acl(parseInt(my_id), (ctx) => {
-    const users = `<pre>${JSON.stringify(global.USUARIOS, null, 2)}</pre>`
-    ctx.replyWithHTML(users.slice(0, 2048))
+    const users = `${JSON.stringify(global.USUARIOS, null, 2)}`
+    ctx.replyWithHTML(`<pre>${users.slice(0, 2037)}</pre>`)
   }),
 )
 
