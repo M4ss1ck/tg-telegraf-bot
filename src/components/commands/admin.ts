@@ -34,4 +34,16 @@ admin.command(
   }),
 )
 
+admin.command(
+  'export',
+  Composer.acl(parseInt(my_id), async (ctx) => {
+    await ctx.replyWithDocument({
+      source: './prisma/dev.db',
+      filename: 'dev.db',
+    }, {
+      caption: 'Database exported successfully!',
+    })
+  }),
+)
+
 export default admin
