@@ -113,11 +113,12 @@ filtros.on('message', async (ctx) => {
         const respuesta = JSON.parse(filter.respuesta)
         const caption = respuesta.caption ?? null
         const markup = respuesta.reply_markup ?? null
+        const replyToId = ctx.message.reply_to_message ? ctx.message.reply_to_message.message_id : ctx.message.message_id
 
         console.log(respuesta)
         if (filter.tipo === 'text') {
           const entities = respuesta.entities as any[] || []
-          console.log('Entities:\n', entities)
+          // console.log('Entities:\n', entities)
           let texto_final = respuesta.text
           // FIXME: add the right type
           entities.forEach((entity: any) => {
@@ -161,7 +162,7 @@ filtros.on('message', async (ctx) => {
           })
 
           ctx.replyWithHTML(texto_final, {
-            reply_to_message_id: ctx.message.message_id,
+            reply_to_message_id: replyToId,
             reply_markup: markup,
           })
         }
@@ -171,7 +172,7 @@ filtros.on('message', async (ctx) => {
               respuesta.photo[respuesta.photo.length - 1].file_id,
               {
                 caption,
-                reply_to_message_id: ctx.message.message_id,
+                reply_to_message_id: replyToId,
                 reply_markup: markup,
               },
             )
@@ -180,7 +181,7 @@ filtros.on('message', async (ctx) => {
         else if (filter.tipo === 'sticker') {
           ctx
             .replyWithSticker(respuesta.sticker.file_id, {
-              reply_to_message_id: ctx.message.message_id,
+              reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
@@ -189,7 +190,7 @@ filtros.on('message', async (ctx) => {
           ctx
             .replyWithVoice(respuesta.voice.file_id, {
               caption,
-              reply_to_message_id: ctx.message.message_id,
+              reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
@@ -198,7 +199,7 @@ filtros.on('message', async (ctx) => {
           ctx
             .replyWithVideo(respuesta.video.file_id, {
               caption,
-              reply_to_message_id: ctx.message.message_id,
+              reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
@@ -207,7 +208,7 @@ filtros.on('message', async (ctx) => {
           ctx
             .replyWithAudio(respuesta.audio.file_id, {
               caption,
-              reply_to_message_id: ctx.message.message_id,
+              reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
@@ -216,7 +217,7 @@ filtros.on('message', async (ctx) => {
           ctx
             .replyWithDocument(respuesta.document.file_id, {
               caption,
-              reply_to_message_id: ctx.message.message_id,
+              reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
