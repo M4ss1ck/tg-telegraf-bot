@@ -12,7 +12,7 @@ urban.command('ud', async (ctx) => {
         console.log(res)
         if (res.list) {
           const results = res.list as any[]
-          const text = results.map(res => `${res.definition}\n<i>${res.example ?? 'No example found'}</i>`).join('\n\n')
+          const text = results.map(res => `${res.definition}\n${res.example ?? 'No example found'}`).join('\n\n')
           ctx.replyWithHTML(text.slice(0, 2048))
         }
       })
