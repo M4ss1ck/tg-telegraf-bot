@@ -13,7 +13,7 @@ specifiers:
   nodemon: ^2.0.19
   pg: ^8.7.3
   prisma: ^4.3.1
-  telegraf: ^4.8.1
+  telegraf: ^4.11.2
   tsc-watch: ^5.0.3
   twig: ^1.15.4
   typescript: ^4.8.3
@@ -27,7 +27,7 @@ dependencies:
   expr-eval: 2.0.2
   fast-csv: 4.3.6
   pg: 8.7.3
-  telegraf: 4.8.1
+  telegraf: 4.11.2
   twig: 1.15.4
   urban-dictionary-client: 3.1.0
 
@@ -561,7 +561,7 @@ packages:
     dev: false
 
   /buffer-fill/1.0.0:
-    resolution: {integrity: sha1-+PeLdniYiO858gXNY39o5wISKyw=}
+    resolution: {integrity: sha512-T7zexNBwiiaCOGDg9xNX9PBmjrubblRkENuptryuI64URkXDFum9il/JGL8Lm8wYfAXpredVXXZz7eMHilimiQ==}
     dev: false
 
   /buffer-writer/2.0.0:
@@ -1914,9 +1914,11 @@ packages:
 
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
+    dev: true
 
-  /module-alias/2.2.2:
-    resolution: {integrity: sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==}
+  /mri/1.2.0:
+    resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
+    engines: {node: '>=4'}
     dev: false
 
   /ms/2.0.0:
@@ -2527,20 +2529,19 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /telegraf/4.8.1:
-    resolution: {integrity: sha512-+76tLC2XS73Rf4Ty6jXEMW52exAP6isgHmq36XBJlnOZV00K6/QdN7mFafVYeKqR3bO/ZqgIphc5In3EwKJMyA==}
+  /telegraf/4.11.2:
+    resolution: {integrity: sha512-RGEh+NXkHbq1KcSSbJeVYhHMrEN4rymd9DSe3SoIV0886bJPBHLzYCNrOqnk9aeZE2Idwh5uK0X/xbR6jScQKQ==}
     engines: {node: ^12.20.0 || >=14.13.1}
     hasBin: true
     dependencies:
       abort-controller: 3.0.0
       debug: 4.3.4
-      minimist: 1.2.6
-      module-alias: 2.2.2
+      mri: 1.2.0
       node-fetch: 2.6.7
       p-timeout: 4.1.0
       safe-compare: 1.1.4
       sandwich-stream: 2.0.2
-      typegram: 3.9.1
+      typegram: 4.1.1
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -2569,7 +2570,7 @@ packages:
     dev: true
 
   /tr46/0.0.3:
-    resolution: {integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=}
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
     dev: false
 
   /tsc-watch/5.0.3_typescript@4.8.3:
@@ -2647,8 +2648,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /typegram/3.9.1:
-    resolution: {integrity: sha512-vfFr2o0iX+amnUj1h/0c49y8bCvGwt6DgdmTVD732Kf81XG26vgFwNWj+33Ol+xORC7m0cqU2hPYGRtcGinwZg==}
+  /typegram/4.1.1:
+    resolution: {integrity: sha512-4xR41CHqE2gKmbv1t1C4JM0MNtaQWo28Ez4c2dDAwdKL7BixDRxk0THmiWjJTGKAZdkaaD1I3tVMXRlbk9VJOw==}
     dev: false
 
   /typescript/4.8.3:
@@ -2726,11 +2727,11 @@ packages:
     dev: false
 
   /webidl-conversions/3.0.1:
-    resolution: {integrity: sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=}
+    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
     dev: false
 
   /whatwg-url/5.0.0:
-    resolution: {integrity: sha1-lmRU6HZUYuN2RNNib2dCzotwll0=}
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
