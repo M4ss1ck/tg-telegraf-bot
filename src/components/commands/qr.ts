@@ -30,7 +30,6 @@ qr.command('qr', async (ctx) => {
     const img = ctx.message.reply_to_message.photo.shift()
     if (img) {
       const link = await ctx.telegram.getFileLink(img.file_id)
-      console.log(link.href)
       const code = await decodeQR(link.href)
       if (code && code.result) {
         ctx
@@ -47,7 +46,7 @@ qr.command('qr', async (ctx) => {
       const matches = img.match(regex)
       if (matches) {
         const data = matches[2]
-        ctx.replyWithPhoto({ source: Buffer.from(data, 'base64') }, { caption: qrText })
+        ctx.replyWithPhoto({ source: Buffer.from(data, 'base64') })
       }
     }
     else {
