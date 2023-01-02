@@ -39,7 +39,7 @@ qr.command('qr', async (ctx) => {
     }
   }
   else {
-    const qrText = ctx.message.text.replace(/^\/qr(@\w+)?\s+/g, '')
+    const qrText = ctx.message.text.replace(/^\/qr((@\w+)?\s+)?/g, '')
     const img = await generateQR(qrText)
     if (img && qrText.length > 0) {
       const regex = /^data:.+\/(.+);base64,(.*)$/
