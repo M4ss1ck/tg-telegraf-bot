@@ -12,6 +12,7 @@ import admin from './components/commands/admin.js'
 import createUser from './components/commands/createUser.js'
 import anime from './components/commands/anime.js'
 import ban from './components/commands/ban.js'
+import qr from './components/commands/qr.js'
 import { getUsers } from './components/global/data.js'
 // import axios from "axios";
 
@@ -33,6 +34,7 @@ bot
   .use(replacer)
   .use(polls)
   .use(anime)
+  .use(qr)
   .use(filtros)
 
 // Iniciar bot
