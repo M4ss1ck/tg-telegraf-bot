@@ -1,7 +1,7 @@
 import { Composer } from 'telegraf'
 import QRCode from 'qrcode'
 import Jimp from 'jimp'
-import QRReader from 'qrcode-reader'
+import jsQR from 'jsqr'
 
 const generateQR = async (text: string) => {
   try {
@@ -13,16 +13,6 @@ const generateQR = async (text: string) => {
   }
 }
 
-const decodeQR = async (url: string) => {
-  const img = await Jimp.read(url)
-  const qr = new QRReader()
-  const value = await new Promise((resolve, reject) => {
-    qr.callback = (err: any, v: any) => err != null ? reject(err) : resolve(v)
-    qr.decode(img.bitmap)
-  })
-  return value as any
-}
-
 const qr = new Composer()
 
 qr.command('qr', async (ctx) => {
@@ -31,10 +21,17 @@ qr.command('qr', async (ctx) => {
       const img = ctx.message.reply_to_message.photo.shift()
       if (img) {
         const link = await ctx.telegram.getFileLink(img.file_id)
-        const code = await decodeQR(link.href)
-        if (code && code.result) {
+        const imgJimp = await Jimp.read(link.href)
+        const array = new Uint8ClampedArray(imgJimp.bitmap.data.buffer)
+        const code = jsQR(array, img.width, img.height)
+        if (code && code.data) {
           ctx
-            .replyWithHTML(code.result, { reply_to_message_id: ctx.message.message_id })
+            .replyWithHTML(code.data, { reply_to_message_id: ctx.message.message_id, disable_web_page_preview: true })
+            .catch(e => console.log(e))
+        }
+        else {
+          ctx
+            .replyWithHTML('No data found on image file.\nIf you are sure there\'s a QR Code, blame <a href="https://github.com/cozmo/jsQR">the library</a>', { reply_to_message_id: ctx.message.message_id, disable_web_page_preview: true })
             .catch(e => console.log(e))
         }
       }
