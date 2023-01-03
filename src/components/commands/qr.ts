@@ -27,30 +27,46 @@ const qr = new Composer()
 
 qr.command('qr', async (ctx) => {
   if (ctx.message.reply_to_message && 'photo' in ctx.message.reply_to_message) {
-    const img = ctx.message.reply_to_message.photo.shift()
-    if (img) {
-      const link = await ctx.telegram.getFileLink(img.file_id)
-      const code = await decodeQR(link.href)
-      if (code && code.result) {
-        ctx
-          .replyWithHTML(code.result, { reply_to_message_id: ctx.message.message_id })
-          .catch(e => console.log(e))
+    try {
+      const img = ctx.message.reply_to_message.photo.shift()
+      if (img) {
+        const link = await ctx.telegram.getFileLink(img.file_id)
+        const code = await decodeQR(link.href)
+        if (code && code.result) {
+          ctx
+            .replyWithHTML(code.result, { reply_to_message_id: ctx.message.message_id })
+            .catch(e => console.log(e))
+        }
       }
+    }
+    catch (error) {
+      console.log(error)
+      ctx
+        .replyWithHTML('Uncaught error while reading the code', { reply_to_message_id: ctx.message.message_id })
+        .catch(e => console.log(e))
     }
   }
   else {
-    const qrText = ctx.message.text.replace(/^\/qr((@\w+)?\s+)?/g, '')
-    const img = await generateQR(qrText)
-    if (img && qrText.length > 0) {
-      const regex = /^data:.+\/(.+);base64,(.*)$/
-      const matches = img.match(regex)
-      if (matches) {
-        const data = matches[2]
-        ctx.replyWithPhoto({ source: Buffer.from(data, 'base64') })
+    try {
+      const qrText = ctx.message.text.replace(/^\/qr((@\w+)?\s+)?/g, '')
+      const img = await generateQR(qrText)
+      if (img && qrText.length > 0) {
+        const regex = /^data:.+\/(.+);base64,(.*)$/
+        const matches = img.match(regex)
+        if (matches) {
+          const data = matches[2]
+          ctx.replyWithPhoto({ source: Buffer.from(data, 'base64') })
+        }
+      }
+      else {
+        ctx.replyWithHTML('QR Code couldn\'t be created')
       }
     }
-    else {
-      ctx.replyWithHTML('QR Code couldn\'t be created')
+    catch (error) {
+      console.log(error)
+      ctx
+        .replyWithHTML('Uncaught error while creating the code', { reply_to_message_id: ctx.message.message_id })
+        .catch(e => console.log(e))
     }
   }
 })
