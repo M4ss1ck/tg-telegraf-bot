@@ -128,7 +128,7 @@ anime.action(/getAnime/, async (ctx) => {
         const caption = `<b>${media.title.romaji ?? 'Title'}</b> (${media.id})
         Year: ${media.seasonYear ?? 'n/a'}  Episodes: ${media.episodes ?? 'n/a'}
       
-        <i>${media.description.replace(/<br>/g, '') ?? 'description n/a'}`
+        <i>${media.description ? media.description.replace(/<br>/g, '') ?? 'description n/a' : 'description n/a'}`
 
         const cover = media.coverImage.large
 
@@ -230,7 +230,7 @@ anime.action(/getCharacter/, async (ctx) => {
         const caption = `<a href="${character.siteUrl}">${character.name.full ?? 'Nombre'}</a> (${character.id})
         Age: ${character.age ?? 'n/a'}  Gender: ${character.gender ?? 'n/a'}
         
-        <i>${character.description.replace(/<br>/g, '') ?? 'description n/a'}`
+        <i>${character.description ? character.description.replace(/<br>/g, '') ?? 'description n/a' : 'description n/a'}`
 
         const cover = character.image.large
 
