@@ -137,7 +137,6 @@ commands.command(['/gay', '/ghei'], (ctx) => {
 commands.command(['c', 'calc'], (ctx) => {
   const index = ctx.message.entities ? ctx.message.entities[0].length + 1 : 0
   const math = ctx.message.text.substring(index)
-  console.log(math)
   if (math === '') {
     ctx.replyWithHTML(
       'Debe introducir una expresión matemática.\nEjemplos: <code>/calc 2+3^6</code>\n<code>/calc PI^4</code>\n<code>/calc 25346*3456/32</code>',
@@ -148,7 +147,8 @@ commands.command(['c', 'calc'], (ctx) => {
   }
   else {
     try {
-      const result = parser.parse(math).simplify()
+      const parsedText = math.replace(/×/g, '*').replace(/[÷:]/g, '/')
+      const result = parser.parse(parsedText).simplify()
       console.log(`El resultado de ${math} es ${result}`)
       ctx.replyWithHTML(`<code>${result}</code>`, {
         reply_to_message_id: ctx.message.message_id,
