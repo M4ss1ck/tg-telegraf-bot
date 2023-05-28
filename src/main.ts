@@ -10,7 +10,7 @@ import replacer from './components/commands/replace.js'
 import polls from './components/commands/polls.js'
 import admin from './components/commands/admin.js'
 import createUser from './components/commands/createUser.js'
-import anime from './components/commands/anime.js'
+// import anime from './components/commands/anime.js'
 import ban from './components/commands/ban.js'
 import qr from './components/commands/qr.js'
 import { getUsers } from './components/global/data.js'
@@ -33,7 +33,7 @@ bot
   .use(inline)
   .use(replacer)
   .use(polls)
-  .use(anime)
+  // .use(anime)
   .use(qr)
   .use(filtros)
 
