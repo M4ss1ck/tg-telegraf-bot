@@ -20,3 +20,6 @@ Usaré BD esta vez
 - /meme
 - /lec
 - /cr
+
+
+- create stickers from messages
