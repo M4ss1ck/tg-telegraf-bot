@@ -3,3 +3,4 @@ node_modules
 *.csv
 prisma/*.db
 dist
+locales/*.missing.json
