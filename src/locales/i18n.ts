@@ -12,8 +12,10 @@ await i18next.use(backend).init({
   lng: 'en',
   fallbackLng: 'en',
   supportedLngs: ['es', 'en'],
+  saveMissing: true,
   backend: {
     loadPath: path.join(__dirname, '../../locales/{{lng}}.json'),
+    addPath: path.join(__dirname, '../../locales/{{lng}}.missing.json'),
   },
 })
 
