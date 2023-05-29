@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 await i18next.use(backend).init({
-  debug: true,
+  // debug: true,
   initImmediate: false,
   lng: 'en',
   fallbackLng: 'en',

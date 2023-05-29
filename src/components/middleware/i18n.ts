@@ -15,6 +15,7 @@ i18n.use(async (ctx, next) => {
       ctx.session.lang = lng
     })
     ctx.i18next = _i18next
+    ctx.t = _i18next.t
   }
   return next()
 })
