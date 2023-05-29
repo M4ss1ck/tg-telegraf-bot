@@ -5,5 +5,11 @@
     "Eres administrador de este bot": "Eres administrador de este bot",
     "Usuario baneado": "Usuario baneado",
     "Error kicking user": "Error botando al usuario",
-    "Database exported successfully!": "Base de datos exportada con éxito"
+    "Database exported successfully!": "Base de datos exportada con éxito",
+    "Filter added": "Agregado/actualizado el filtro <code>{{trigger}}</code>",
+    "Filter eliminated": "Se eliminó el filtro <code>{{trigger}}</code>",
+    "Filter doesn't exist": "El filtro \"<code>{{trigger}}</code>\" no existe",
+    "Lista de filtros:": "Lista de filtros:",
+    "Filters not found": "<i>No se encontraron filtros</i>",
+    "Debe escribir un filtro": "Debes escribir un filtro"
 }
