@@ -1,3 +1,9 @@
 {
-    "changeLanguage": "You have changed the language!"
+    "changeLanguage": "You have changed the language!",
+    "bye": "I'm out! 👋",
+    "kidding": "I was kidding",
+    "Eres administrador de este bot": "You are administrator of this bot",
+    "Usuario baneado": "User was banned",
+    "Error kicking user": "Error kicking user",
+    "Database exported successfully!": "Database exported successfully!"
 }
