@@ -11,5 +11,14 @@
     "Filter doesn't exist": "El filtro \"<code>{{trigger}}</code>\" no existe",
     "Lista de filtros:": "Lista de filtros:",
     "Filters not found": "<i>No se encontraron filtros</i>",
-    "Debe escribir un filtro": "Debes escribir un filtro"
+    "Debe escribir un filtro": "Debes escribir un filtro",
+    "Not admin": "No tienes suficientes privilegios para ejecutar este comando",
+    "Grupo": "Grupo",
+    "Canal": "Canal",
+    "Borrar": "Borrar",
+    "welcome": "Sea usted bienvenid@ a la comunidad de <b>Wasting Time</b>. Donde podrá pasar tiempo con sus amigos, compartir memes, jugar a encontrar el lobo y probablemente morir en el intento.",
+    "Tiempo activo": "Tiempo activo",
+    "respuesta": "respuesta",
+    "Información del mensaje": "Información del mensaje",
+    "<code>/info</code> se usa respondiendo un mensaje. Tal vez prefieras usar /me": "<code>/info</code> se usa respondiendo un mensaje. Tal vez prefieras usar /me"
 }
