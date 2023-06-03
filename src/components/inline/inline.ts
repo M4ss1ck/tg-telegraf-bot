@@ -1,19 +1,20 @@
 import { Composer, Markup } from 'telegraf'
+import type { MyContext } from '../../interfaces'
 
-const inline = new Composer()
+const inline = new Composer<MyContext>()
 
 inline.on('inline_query', async (ctx) => {
   const query = ctx.inlineQuery.query
   const response = [
     {
-      title: `Tu porcentaje de ${query}`,
-      description: 'La efectividad está probada científicamente',
-      message_text: `Soy ${Math.floor(Math.random() * 100)}% ${query}`,
+      title: ctx.t('Tu porcentaje de {{query}}', { query }),
+      description: ctx.t('La efectividad está probada científicamente'),
+      message_text: `${ctx.t('Soy')} ${Math.floor(Math.random() * 100)}% ${query}`,
     },
     {
-      title: `Probabilidad de que ${query}`,
-      description: 'La efectividad está probada científicamente',
-      message_text: `La probabilidad de que ${query} es de un ${Math.floor(
+      title: ctx.t('Probabilidad de que {{query}}', { query }),
+      description: ctx.t('La efectividad está probada científicamente'),
+      message_text: `${ctx.t('La probabilidad de que')} ${query} ${ctx.t('es de un')} ${Math.floor(
         Math.random() * 100,
       )}%`,
     },
@@ -21,8 +22,8 @@ inline.on('inline_query', async (ctx) => {
   const markup = Markup.inlineKeyboard([
     [
       Markup.button.switchToCurrentChat(
-        'Probar otra vez',
-        'fanático de este bot',
+        ctx.t('Probar otra vez'),
+        ctx.t('fanático de este bot'),
       ),
     ],
   ])
@@ -37,7 +38,6 @@ inline.on('inline_query', async (ctx) => {
     },
     ...markup,
   }))
-  // FIXME:
   return await ctx
     .answerInlineQuery(recipes as any, { cache_time: 5, is_personal: true })
     .catch(e => console.log('ERROR WITH INLINE QUERY\n', e))
