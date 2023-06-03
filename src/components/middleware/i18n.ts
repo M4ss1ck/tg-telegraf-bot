@@ -20,7 +20,7 @@ i18n.use(async (ctx, next) => {
   return next()
 })
 
-i18n.command('changeLanguage', async (ctx) => {
+i18n.command(['changeLanguage', 'cl'], async (ctx) => {
   const language = ctx.session.lang === 'en' ? 'es' : 'en'
   ctx.i18next.changeLanguage(language)
   return ctx.reply(ctx.i18next.t('changeLanguage') as string)
