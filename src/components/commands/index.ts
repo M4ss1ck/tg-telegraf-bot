@@ -1,7 +1,13 @@
+import { fileURLToPath } from 'url'
+import path from 'path'
 import { Composer, Markup } from 'telegraf'
 import Twig from 'twig'
 import { Parser } from 'expr-eval'
 import { elapsedTime } from '../../utils/utils.js'
+import type { MyContext } from '../../interfaces.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const parser = new Parser({
   operators: {
@@ -26,13 +32,13 @@ let victim = process.env.VICTIM_ID ?? '123'
 // hora en que arranca el bot
 const inicio = performance.now()
 
-const commands = new Composer()
+const commands = new Composer<MyContext>()
 
 commands.command(['grupo', 'group', 'promo', 'spam'], (ctx) => {
   const buttons: any[][] = [
     [
-      Markup.button.url('Grupo', 'https://t.me/juestin_taim'),
-      Markup.button.url('Canal', 'https://t.me/wasting_time_pro'),
+      Markup.button.url(ctx.t('Grupo'), 'https://t.me/juestin_taim'),
+      Markup.button.url(ctx.t('Canal'), 'https://t.me/wasting_time_pro'),
     ],
   ]
   if (ctx.chat.type === 'private') {
@@ -41,14 +47,15 @@ commands.command(['grupo', 'group', 'promo', 'spam'], (ctx) => {
       Markup.button.webApp('Massick\'s Blog', 'https://massick.gatsbyjs.io/'),
     ])
   }
-  buttons.push([Markup.button.callback('Borrar', 'del')])
+  buttons.push([Markup.button.callback(ctx.t('Borrar'), 'del')])
   const keyboard = Markup.inlineKeyboard(buttons)
-  const text
-    = 'Sea usted bienvenid@ a la comunidad de <b>Wasting Time</b>. Donde podrá pasar tiempo con sus amigos, compartir memes, jugar a encontrar el lobo y probablemente morir en el intento.'
 
   ctx
-    .replyWithPhoto({ source: './images/grupo.webp' })
-    .then(() => ctx.replyWithHTML(text, keyboard))
+    .replyWithPhoto({ source: path.join(__dirname, '../../../images/grupo.webp') }, {
+      caption: ctx.t('welcome')!,
+      parse_mode: 'HTML',
+      ...keyboard,
+    })
 })
 
 commands.command('ping', (ctx) => {
@@ -56,18 +63,20 @@ commands.command('ping', (ctx) => {
   const botUsername = ctx.me
   const messageTime = ctx.message.date
   const delay = Math.round(Date.now() / 1000) - messageTime
-  ctx.reply(`[@${botUsername}] Tiempo activo: ${tiempo}\nV. respuesta: ${delay}ms`)
+  ctx.reply(`[@${botUsername}]\n${ctx.t('Tiempo activo')}: ${tiempo}\n${ctx.t('respuesta')}: ${delay}ms`)
 })
 
 commands.command('me', async (ctx) => {
-  const text = `<pre>${JSON.stringify(ctx.botInfo, null, 2)}</pre>`
-  console.log(text.length)
+  const text = JSON.stringify(ctx.botInfo, null, 2)
   if (text.length < 4096) {
     ctx.replyWithHTML(text)
   }
   else {
-    await ctx.replyWithHTML(text.substring(0, 4096))
-    await ctx.replyWithHTML(text.substring(4096, text.length))
+    const chunks = Math.ceil(text.length / 4096)
+    for (let i = 0; i < chunks; i++) {
+      const index = 4096 * i
+      await ctx.replyWithHTML(text.substring(index, index + 4096)).catch(console.log)
+    }
   }
 })
 
@@ -75,32 +84,34 @@ commands.command('info', async (ctx) => {
   // console.log(ctx);
   if (ctx.message.reply_to_message) {
     const msgInfo = JSON.stringify(ctx.message.reply_to_message, null, 2)
-    const text = `<b>Información del mensaje:</b>\n<pre>${msgInfo}</pre>`
+    const text = `<b>${ctx.t('Información del mensaje')}:</b>\n${msgInfo}`
+    console.log(text)
     if (text.length < 4096) {
       ctx.replyWithHTML(text, {
         reply_to_message_id: ctx.message.reply_to_message.message_id,
       })
     }
     else {
-      await ctx.replyWithHTML(text.substring(0, 4096), {
-        reply_to_message_id: ctx.message.reply_to_message.message_id,
-      })
-      await ctx.replyWithHTML(text.substring(4096, text.length), {
-        reply_to_message_id: ctx.message.reply_to_message.message_id,
-      })
+      const chunks = Math.ceil(text.length / 4096)
+      for (let i = 0; i < chunks; i++) {
+        const index = 4096 * i
+        await ctx.replyWithHTML(text.substring(index, index + 4096), {
+          reply_to_message_id: ctx.message.reply_to_message.message_id,
+        }).catch(console.log)
+      }
     }
   }
   else {
     ctx.replyWithHTML(
-      '<code>/info</code> se usa respondiendo un mensaje. Tal vez prefieras usar /me',
+      ctx.t('<code>/info</code> se usa respondiendo un mensaje\. Tal vez prefieras usar /me'),
     )
   }
 })
 
-commands.command(['jaja', 'jajaja', 'porn'], (ctx) => {
+commands.command(['jaja', 'jajaja', 'porn', 'hahaha', 'haha'], (ctx) => {
   if (!ctx.message.reply_to_message) {
     ctx.replyWithHTML(
-      `<a href="tg://user?id=${ctx.message.from.id}"> ${ctx.message.from.first_name}</a>, el comando se usa respondiendo un mensaje`,
+      `<a href="tg://user?id=${ctx.message.from.id}"> ${ctx.message.from.first_name}</a>, ${ctx.t('el comando se usa respondiendo un mensaje')}`,
     )
   }
   else if (ctx.message.reply_to_message.from?.id.toString() === my_id) {
@@ -111,7 +122,7 @@ commands.command(['jaja', 'jajaja', 'porn'], (ctx) => {
           reply_to_message_id: ctx.message.message_id,
         },
       )
-      .then(() => ctx.reply('Yo tú no lo vuelvo a intentar'))
+      .then(() => ctx.reply(ctx.t('Yo tú no lo vuelvo a intentar')!))
   }
   else {
     ctx.replyWithVoice(
@@ -126,12 +137,12 @@ commands.command(['jaja', 'jajaja', 'porn'], (ctx) => {
 commands.command(['/gay', '/ghei'], (ctx) => {
   const replyMarkup = Markup.inlineKeyboard([
     [
-      Markup.button.switchToChat('en otro chat', 'loca'),
-      Markup.button.switchToCurrentChat('aquí mismo', 'loca'),
+      Markup.button.switchToChat(ctx.t('en otro chat'), ctx.t('loca')),
+      Markup.button.switchToCurrentChat(ctx.t('aquí mismo'), ctx.t('loca')),
     ],
   ])
 
-  ctx.replyWithHTML('Mi % de loca', replyMarkup)
+  ctx.replyWithHTML(ctx.t('Mi % de loca'), replyMarkup)
 })
 
 commands.command(['c', 'calc'], (ctx) => {
@@ -139,7 +150,7 @@ commands.command(['c', 'calc'], (ctx) => {
   const math = ctx.message.text.substring(index)
   if (math === '') {
     ctx.replyWithHTML(
-      'Debe introducir una expresión matemática.\nEjemplos: <code>/calc 2+3^6</code>\n<code>/calc PI^4</code>\n<code>/calc 25346*3456/32</code>',
+      `${ctx.t('Debe introducir una expresión matemática.\nEjemplos')}: <code>/calc 2+3^6</code>\n<code>/calc PI^4</code>\n<code>/calc 25346*3456/32</code>`,
       {
         reply_to_message_id: ctx.message.message_id,
       },
@@ -149,7 +160,7 @@ commands.command(['c', 'calc'], (ctx) => {
     try {
       const parsedText = math.replace(/×/g, '*').replace(/[÷:]/g, '/')
       const result = parser.parse(parsedText).simplify()
-      console.log(`El resultado de ${math} es ${result}`)
+      console.log(ctx.t('El resultado de {{math}} es {{result}}', { math, result }))
       ctx.replyWithHTML(`<code>${result}</code>`, {
         reply_to_message_id: ctx.message.message_id,
       })
@@ -167,25 +178,26 @@ commands.command(['c', 'calc'], (ctx) => {
 })
 commands.command(['start', 'jelou'], (ctx) => {
   ctx.replyWithHTML(
-    `<b>Hola, ${ctx.message.from.first_name}!</b>\nEnvía <code>/ayuda</code> para ver algunas opciones`,
+    ctx.t('<b>Hola, {{name}}!</b>\nEnvía <code>/ayuda</code> para ver algunas opciones', {
+      name: ctx.message.from.first_name,
+    }),
   )
 })
 
 commands.command(['ayuda', 'help'], (ctx) => {
   ctx.replyWithHTML(
-    '<b>Comandos disponibles:</b>\n<code>/ayuda</code> --- este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> --- calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> --- Información sobre la comunidad del bot\n<code>/info</code> --- información sobre el mensaje respondido\n<code>/me</code> --- información sobre el bot y el usuario\n<code>/ud</code> --- buscar palabras o frases en Urban Dictionary\n<code>/nick</code> --- crear/cambiar nick usado por el bot\n<code>/poll</code> --- crear encuestas de más de 10 opciones',
+    ctx.t('<b>Comandos disponibles\:</b>\n<code>/ayuda</code> --- este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> --- calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> --- Información sobre la comunidad del bot\n<code>/info</code> --- información sobre el mensaje respondido\n<code>/me</code> --- información sobre el bot y el usuario\n<code>/ud</code> --- buscar palabras o frases en Urban Dictionary\n<code>/nick</code> --- crear/cambiar nick usado por el bot\n<code>/poll</code> --- crear encuestas de más de 10 opciones'),
   )
 })
 
 commands.command('say', (ctx) => {
   const text = ctx.message.text.substring(5)
-  console.log(text.length)
   if (text.length > 0) {
     ctx.replyWithHTML(text)
   }
   else {
     ctx.replyWithHTML(
-      'Escribe algo después del comando y yo lo repetiré\nEjemplo: <code>/say Hola</code>',
+      ctx.t('Escribe algo después del comando y yo lo repetiré\nEjemplo\: <code>/say Hola</code>'),
     )
   }
 })
@@ -202,7 +214,7 @@ commands.command('tag', (ctx) => {
 
   if (new_victim.toString() === my_id) {
     ctx.replyWithHTML(
-      `<a href="tg://user?id=${ctx.from.id}">Cariño</a>, no puedo hacer eso`,
+      ctx.t('<a href="tg\://user?id={{id}}">Cariño</a>, no puedo hacer eso', { id: ctx.from.id }),
       {
         reply_to_message_id: ctx.message.message_id,
       },
@@ -218,7 +230,7 @@ commands.command('tag', (ctx) => {
       for (let i = 0; i < n; i++) {
         await sleep(1500).then(() => {
           ctx.replyWithHTML(
-            `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>llamada número ${i + 1
+            `<a href="tg://user?id=${new_victim}">tag tag</a>\n<em>${ctx.t('llamada número')} ${i + 1
             }</em>`,
           )
         })
@@ -232,7 +244,7 @@ commands.command('set_victim', (ctx) => {
   const text = ctx.message.text.substring(12) ?? ''
   if (ctx.from.id.toString() === my_id) {
     victim = text.match(/\d+/g)?.[0] ?? ''
-    victim !== '' && ctx.reply(`Ahora ${victim} es la victima`)
+    victim !== '' && ctx.reply(ctx.t('Ahora {{victim}} es la victima', { victim })!)
   }
 })
 
@@ -242,17 +254,17 @@ commands.command('like', async (ctx) => {
       ? ctx.message.text.substring(6)
       : ctx.from.first_name
   if (ctx.message.reply_to_message) {
-    await ctx.replyWithHTML(`A ${text} le gusta esto 👆👀`, {
+    await ctx.replyWithHTML(ctx.t('A {{text}} le gusta esto 👆👀', { text }), {
       reply_to_message_id: ctx.message.reply_to_message.message_id,
     })
   }
   else {
     await ctx.replyWithHTML(
-      `A ${text} le gusta alguien aquí pero es tímido 😳`,
+      ctx.t('A {{text}} le gusta alguien aquí pero es tímido 😳', { text }),
     )
   }
   await ctx.deleteMessage().catch(() => {
-    console.log('No se pudo borrar el mensaje')
+    console.log(ctx.t('No se pudo borrar el mensaje'))
     // const keyboard = Markup.inlineKeyboard([
     //   [Markup.button.callback("Borrar", "del")],
     // ]);
@@ -280,7 +292,7 @@ commands.command('run', async (ctx) => {
     }
   }
   else {
-    ctx.reply('No tienes suficientes privilegios para ejecutar este comando')
+    ctx.reply(ctx.t('Not admin')!)
   }
 })
 
