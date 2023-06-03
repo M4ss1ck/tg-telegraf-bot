@@ -2,6 +2,7 @@ import { Composer } from 'telegraf'
 import QRCode from 'qrcode'
 import Jimp from 'jimp'
 import jsQR from 'jsqr'
+import type { MyContext } from '../../interfaces'
 
 const generateQR = async (text: string) => {
   try {
@@ -13,7 +14,7 @@ const generateQR = async (text: string) => {
   }
 }
 
-const qr = new Composer()
+const qr = new Composer<MyContext>()
 
 qr.command('qr', async (ctx) => {
   if (ctx.message.reply_to_message && 'photo' in ctx.message.reply_to_message) {
@@ -31,7 +32,7 @@ qr.command('qr', async (ctx) => {
         }
         else {
           ctx
-            .replyWithHTML('No data found on image file.\nIf you are sure there\'s a QR Code, blame <a href="https://github.com/cozmo/jsQR">the library</a>', { reply_to_message_id: ctx.message.message_id, disable_web_page_preview: true })
+            .replyWithHTML(ctx.t('No data found on image file.\nIf you are sure there\'s a QR Code, blame <a href="https://github.com/cozmo/jsQR">the library</a>'), { reply_to_message_id: ctx.message.message_id, disable_web_page_preview: true })
             .catch(e => console.log(e))
         }
       }
@@ -39,7 +40,7 @@ qr.command('qr', async (ctx) => {
     catch (error) {
       console.log(error)
       ctx
-        .replyWithHTML('Uncaught error while reading the code', { reply_to_message_id: ctx.message.message_id })
+        .replyWithHTML(ctx.t('Uncaught error while reading the code'), { reply_to_message_id: ctx.message.message_id })
         .catch(e => console.log(e))
     }
   }
@@ -56,13 +57,13 @@ qr.command('qr', async (ctx) => {
         }
       }
       else {
-        ctx.replyWithHTML('QR Code couldn\'t be created')
+        ctx.replyWithHTML(ctx.t('QR Code couldn\'t be created'))
       }
     }
     catch (error) {
       console.log(error)
       ctx
-        .replyWithHTML('Uncaught error while creating the code', { reply_to_message_id: ctx.message.message_id })
+        .replyWithHTML(ctx.t('Uncaught error while creating the code'), { reply_to_message_id: ctx.message.message_id })
         .catch(e => console.log(e))
     }
   }

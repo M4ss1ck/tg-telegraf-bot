@@ -1,12 +1,13 @@
 import { Composer } from 'telegraf'
 import { prisma } from '../db/prisma.js'
+import type { MyContext } from '../../interfaces.js'
 
-const filtros = new Composer()
+const filtros = new Composer<MyContext>()
 
 // añadir un atajo
 filtros.command('add', async (ctx) => {
   const chatId = ctx.chat.id.toString()
-  if (ctx.message.reply_to_message) {
+  if (ctx.message.reply_to_message && ctx.message.text.length > 4) {
     const trigger = ctx.message.text.replace('/add ', '')
 
     if (trigger.length > 0) {
@@ -47,11 +48,11 @@ filtros.command('add', async (ctx) => {
       })
 
       ctx.replyWithHTML(
-        `Agregado/actualizado el filtro <code>${trigger}</code>`,
+        ctx.t('Filter added', { trigger })!,
       )
     }
     else {
-      ctx.replyWithHTML('Debe escribir un filtro')
+      ctx.replyWithHTML(ctx.t('Debe escribir un filtro'))
     }
   }
 })
@@ -69,10 +70,10 @@ filtros.command('rem', async (ctx) => {
       },
     })
     .then(() =>
-      ctx.replyWithHTML(`Se eliminó el filtro <code>${trigger}</code>`),
+      ctx.replyWithHTML(ctx.t('Filter eliminated', { trigger })),
     )
     .catch(() =>
-      ctx.replyWithHTML(`El filtro "<code>${trigger}</code>" no existe`),
+      ctx.replyWithHTML(ctx.t('Filter doesn\'t exist', { trigger })),
     )
 })
 
@@ -89,9 +90,9 @@ filtros.command(['filters', 'filtros'], async (ctx) => {
   const filtrosTexto
     = filtros.length > 0
       ? `<code>${filtros.map(f => f.filtro).join('</code>\n<code>')}</code>`
-      : '<i>No se encontraron filtros</i>'
-  console.log(filtrosTexto)
-  ctx.replyWithHTML(`<b>Lista de filtros:</b>\n${filtrosTexto}`)
+      : ctx.t('<i>No se encontraron filtros</i>')
+
+  ctx.replyWithHTML(`<b>${ctx.t('Lista de filtros:')}</b>\n${filtrosTexto}`)
 })
 
 filtros.on('message', async (ctx) => {

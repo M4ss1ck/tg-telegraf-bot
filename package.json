@@ -16,7 +16,8 @@
     "studio": "prisma studio",
     "watch": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node -r dotenv/config ./dist/main.js\"",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "extract": "node extract.js"
   },
   "dependencies": {
     "@prisma/client": "^4.3.1",
@@ -25,6 +26,8 @@
     "dotenv": "^10.0.0",
     "expr-eval": "^2.0.2",
     "fast-csv": "^4.3.6",
+    "i18next": "^22.5.0",
+    "i18next-fs-backend": "^2.1.2",
     "jimp": "^0.16.2",
     "jsqr": "^1.4.0",
     "pg": "^8.7.3",
@@ -38,6 +41,7 @@
     "@types/node": "^18.7.18",
     "@types/qrcode": "^1.5.0",
     "eslint": "^8.23.1",
+    "i18n-extract": "^0.6.7",
     "nodemon": "^2.0.19",
     "prisma": "^4.3.1",
     "tsc-watch": "^5.0.3",

@@ -1,7 +1,8 @@
 import { Composer } from 'telegraf'
 import { search } from 'urban-dictionary-client'
+import type { MyContext } from '../../interfaces'
 
-const urban = new Composer()
+const urban = new Composer<MyContext>()
 
 const escape = (s: string) => s.replace(/\[|\]|<|>/g, '')
 
@@ -13,7 +14,7 @@ urban.command('ud', async (ctx) => {
       .then((res: any) => {
         if (res.list) {
           const results = res.list as any[]
-          let text = `<b>Results for <i>"${query}"</i>:</b>`
+          let text = `<b>${ctx.t('Results for')} <i>"${query}"</i>:</b>`
           for (let i = 0; i < results.length; i++) {
             const res = results[i]
             if (text.length + res.definition.length + res.example.length > 2035)
@@ -25,7 +26,7 @@ urban.command('ud', async (ctx) => {
         }
       })
       .catch(() => ctx
-        .replyWithHTML('<b>Error with request!</b> Please try again.')
+        .replyWithHTML(ctx.t('<b>Error with request!</b> Please try again.'))
         .catch((err: any) => console.error(err)))
   }
   catch (error) {

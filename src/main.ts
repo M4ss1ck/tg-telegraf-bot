@@ -1,4 +1,4 @@
-import { Telegraf } from 'telegraf'
+import { Telegraf, session } from 'telegraf'
 import actions from './components/actions/index.js'
 import commands from './components/commands/index.js'
 import reputation from './components/commands/reputation.js'
@@ -13,15 +13,19 @@ import createUser from './components/commands/createUser.js'
 // import anime from './components/commands/anime.js'
 import ban from './components/commands/ban.js'
 import qr from './components/commands/qr.js'
+import i18n from './components/middleware/i18n.js'
 import { getUsers } from './components/global/data.js'
 // import axios from "axios";
+import type { MyContext } from './interfaces.js'
 
 // set global state
 global.USUARIOS = await getUsers()
 
-const bot = new Telegraf(process.env.BOT_TOKEN ?? '')
+const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN ?? '')
 
 bot
+  .use(session())
+  .use(i18n)
   .use(createUser)
   .use(admin)
   .use(ban)
