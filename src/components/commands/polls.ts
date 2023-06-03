@@ -1,14 +1,15 @@
 import { Composer } from 'telegraf'
 import { prisma } from '../db/prisma.js'
+import type { MyContext } from '../../interfaces.js'
 
-const polls = new Composer()
+const polls = new Composer<MyContext>()
 
 polls.command('poll', async (ctx) => {
   const text = ctx.message.text.substring(6)
   if (text.length > 0) {
     const arr = text.split(';')
     if (arr.length < 3) {
-      ctx.reply('No hay suficientes opciones')
+      ctx.reply(ctx.t('No hay suficientes opciones')!)
     }
     else {
       const question = arr[0].length > 250 ? arr[0].substring(0, 250) : arr[0]
@@ -57,7 +58,7 @@ polls.command('poll', async (ctx) => {
     }
   }
   else {
-    ctx.reply('Añade un título y opciones para la encuesta')
+    ctx.reply(ctx.t('Añade un título y opciones para la encuesta')!)
   }
 })
 
@@ -77,7 +78,7 @@ polls.command(['close', 'cerrar'], async (ctx) => {
       })
       .catch((err) => {
         console.log(err)
-        ctx.reply('No puedo cerrar la encuesta')
+        ctx.reply(ctx.t('No puedo cerrar la encuesta')!)
       })
   }
 })
@@ -93,26 +94,16 @@ polls.on('poll_answer', async (ctx) => {
     },
   })
 
-  // console.log("Encuesta: ", encuesta)
-
   if (encuesta !== null) {
     const user = ctx.pollAnswer.user.first_name
     const optionId = ctx.pollAnswer.option_ids[0]
     const option = encuesta.options[optionId]
     const text
       = optionId === undefined
-        ? `${user
-        } retractó su voto en la encuesta <b>${
-        encuesta.question
-        }</b>`
-        : `${user
-        } votó por la opción <b>${
-        option.name
-        }</b> en la encuesta <b>${
-        encuesta.question
-        }</b>`
+        ? `${user} ${ctx.t('retractó su voto en la encuesta')} <b>${encuesta.question}</b>`
+        : `${user} ${ctx.t('votó por la opción')} <b>${option.name}</b> ${ctx.t('en la encuesta')} <b>${encuesta.question}</b>`
 
-    await ctx.telegram.sendMessage(encuesta.chat, text, { parse_mode: 'HTML' })
+    await ctx.telegram.sendMessage(encuesta.chat, text, { parse_mode: 'HTML' }).catch(console.log)
   }
 })
 

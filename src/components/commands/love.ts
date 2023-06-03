@@ -1,12 +1,10 @@
 import { Composer } from 'telegraf'
 import { prisma } from '../db/prisma.js'
+import type { MyContext } from '../../interfaces.js'
 
-const love = new Composer()
+const love = new Composer<MyContext>()
 
 love.command('love', async (ctx) => {
-  //   const now = new Date();
-  // console.log(now, loveTime, now - loveTime);
-  //   const time = "\nSiguiente pareja en " + timeToNext(now - loveTime);
   const users = await prisma.usuario.findMany({
     select: {
       tg_id: true,
@@ -20,7 +18,7 @@ love.command('love', async (ctx) => {
   const lover2 = filteredUsers[j]
   if (!lover2) {
     ctx.replyWithHTML(
-      `<b>Pareja del día:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> consigo mismo/a`,
+      `<b>${ctx.t('Pareja del día')}:</b>\n\n<a href="tg://user?id=${lover1.tg_id}">${lover1.nick}</a> ${ctx.t('consigo mismo/a')}`,
     )
   }
   else {

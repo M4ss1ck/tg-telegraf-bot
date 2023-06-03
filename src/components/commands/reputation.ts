@@ -2,10 +2,11 @@ import { Composer } from 'telegraf'
 import { prisma } from '../db/prisma.js'
 import { setRango } from '../../utils/utils.js'
 import { getUsers } from '../global/data.js'
+import type { MyContext } from '../../interfaces.js'
 
 const my_id = process.env.ADMIN_ID
 
-const reputation = new Composer()
+const reputation = new Composer<MyContext>()
 
 // reputacion
 
@@ -31,7 +32,7 @@ reputation.hears(/^\++$/, async (ctx) => {
 
     if (reply_id === from_id && from_id !== my_id) {
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ${ctx.t('ha intentado hacer trampas... \n<em>qué idiota</em>')}`,
       )
     }
     else {
@@ -57,7 +58,13 @@ reputation.hears(/^\++$/, async (ctx) => {
       global.USUARIOS = await getUsers()
 
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`,
+        ctx.t('<a href="tg://user?id={{reply_id}}">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href="tg://user?id={{from_id}}">{{rem_nick}}</a>', {
+          reply_id,
+          dest_nick: destinatario.nick,
+          dest_rep: destinatario.rep,
+          from_id,
+          rem_nick: remitente.nick,
+        }),
       )
     }
   }
@@ -84,7 +91,7 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
 
     if (reply_id === from_id && from_id !== my_id) {
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ha intentado hacer trampas... \n<em>qué idiota</em>`,
+        `<a href="tg://user?id=${from_id}">${remitente.nick}</a> ${ctx.t('ha intentado hacer trampas... \n<em>qué idiota</em>')}`,
       )
     }
     else {
@@ -110,23 +117,31 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
       global.USUARIOS = await getUsers()
 
       return ctx.replyWithHTML(
-        `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> tiene ${destinatario.rep} puntos de reputación ahora, cortesía de <a href="tg://user?id=${from_id}">${remitente.nick}</a>`,
+        ctx.t('<a href="tg://user?id={{reply_id}}">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href="tg://user?id={{from_id}}">{{rem_nick}}</a>', {
+          reply_id,
+          dest_nick: destinatario.nick,
+          dest_rep: destinatario.rep,
+          from_id,
+          rem_nick: remitente.nick,
+        }),
       )
     }
   }
 })
 
 reputation.command('reset_rep', async (ctx) => {
-  await prisma.usuario.updateMany({
-    data: {
-      rep: 0,
-    },
-  })
+  if (ctx.from.id.toString() === my_id) {
+    await prisma.usuario.updateMany({
+      data: {
+        rep: 0,
+      },
+    })
 
-  // set global state
-  global.USUARIOS = await getUsers()
+    // set global state
+    global.USUARIOS = await getUsers()
 
-  ctx.reply('Se ha reiniciado la reputación para todos los usuarios')
+    ctx.reply(ctx.t('Se ha reiniciado la reputación para todos los usuarios')!)
+  }
 })
 
 reputation.command('set_rep', async (ctx) => {
@@ -163,13 +178,16 @@ reputation.command('set_rep', async (ctx) => {
       global.USUARIOS = await getUsers()
 
       return ctx.replyWithHTML(
-        `Se ha actualizado el registro de ${destinatario.nick} con reputación ${dest_rep}`,
+        ctx.t('Se ha actualizado el registro de {{dest_nick}} con reputación {{dest_rep}}', {
+          dest_nick: destinatario.nick,
+          dest_rep,
+        }),
       )
     }
   }
   else {
     ctx.reply(
-      'No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero',
+      ctx.t('No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero')!,
     )
   }
 })
@@ -196,12 +214,14 @@ reputation.command('nick', async (ctx) => {
 
   return ctx
     .replyWithHTML(
-      `El nick de <b>${ctx.message.from.first_name
-      }</b> será ${destinatario.nick}`,
+      ctx.t('El nick de <b>{{name}}</b> será {{nick}}', {
+        name: ctx.message.from.first_name,
+        nick: destinatario.nick,
+      }),
     )
     .catch((error) => {
       console.log(
-        '[/nick] Hubo un error agregando un usuario',
+        ctx.t('[/nick] Hubo un error agregando un usuario'),
         error.description,
       )
       return ctx.replyWithHTML(error.description)
