@@ -19,7 +19,7 @@ const qr = new Composer<MyContext>()
 qr.command('qr', async (ctx) => {
   if (ctx.message.reply_to_message && 'photo' in ctx.message.reply_to_message) {
     try {
-      const img = ctx.message.reply_to_message.photo.shift()
+      const img = ctx.message.reply_to_message.photo.pop()
       if (img) {
         const link = await ctx.telegram.getFileLink(img.file_id)
         const imgJimp = await Jimp.read(link.href)
