@@ -136,13 +136,18 @@ stickers.command('q', async (ctx) => {
                 compositeArray.push({ input: message, left: textHeight > 0 ? Math.max(Math.min(100, textHeight), 50) : 100, top: photoHeight })
             }
 
-            background.composite(compositeArray)
+            const result = await background.composite(compositeArray)
+                .trim()
+                .toBuffer()
+
+            await sharp(result)
+                .trim()
                 .toFile(dest)
                 .then(async () => {
                     ctx.replyWithSticker({ source: dest }).catch(console.error)
                     try {
-                        await unlink(path)
                         await unlink(dest)
+                        await unlink(path)
                     } catch (error) {
                         console.error(error)
                     }
