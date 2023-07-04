@@ -117,7 +117,6 @@ stickers.command('q', async (ctx) => {
                 .webp()
                 .toBuffer()
 
-
             const background = sharp({
                 create: {
                     width: 512,
@@ -144,12 +143,12 @@ stickers.command('q', async (ctx) => {
                 .trim()
                 .toFile(dest)
                 .then(async () => {
-                    ctx.replyWithSticker({ source: dest }).catch(console.error)
+                    await ctx.replyWithSticker({ source: dest }).catch(console.error)
                     try {
                         await unlink(dest)
                         await unlink(path)
                     } catch (error) {
-                        console.error(error)
+                        console.log(error)
                     }
                 })
                 .catch((err) => {
