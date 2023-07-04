@@ -14,6 +14,7 @@ import createUser from './components/commands/createUser.js'
 import ban from './components/commands/ban.js'
 import qr from './components/commands/qr.js'
 import i18n from './components/middleware/i18n.js'
+import stickers from './components/commands/stickers.js'
 import { getUsers } from './components/global/data.js'
 // import axios from "axios";
 import type { MyContext } from './interfaces.js'
@@ -39,6 +40,7 @@ bot
   .use(polls)
   // .use(anime)
   .use(qr)
+  .use(stickers)
   .use(filtros)
 
 // Iniciar bot
