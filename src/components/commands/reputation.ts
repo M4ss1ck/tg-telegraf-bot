@@ -57,15 +57,8 @@ reputation.hears(/^\++$/, async (ctx) => {
       // set global state
       global.USUARIOS = await getUsers()
 
-      return ctx.replyWithHTML(
-        ctx.t('<a href="tg://user?id={{reply_id}}">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href="tg://user?id={{from_id}}">{{rem_nick}}</a>', {
-          reply_id,
-          dest_nick: destinatario.nick,
-          dest_rep: destinatario.rep,
-          from_id,
-          rem_nick: remitente.nick,
-        }),
-      )
+      const text = `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> ${ctx.t('tiene')} ${destinatario.rep} ${ctx.t('puntos de reputación ahora, cortesía de')} <a href="tg://user?id=${from_id}">${remitente.nick}</a>`
+      return ctx.replyWithHTML(text)
     }
   }
 })
@@ -116,15 +109,8 @@ reputation.hears(/^(\-|—)+$/, async (ctx) => {
       // set global state
       global.USUARIOS = await getUsers()
 
-      return ctx.replyWithHTML(
-        ctx.t('<a href="tg://user?id={{reply_id}}">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href="tg://user?id={{from_id}}">{{rem_nick}}</a>', {
-          reply_id,
-          dest_nick: destinatario.nick,
-          dest_rep: destinatario.rep,
-          from_id,
-          rem_nick: remitente.nick,
-        }),
-      )
+      const text = `<a href="tg://user?id=${reply_id}">${destinatario.nick}</a> ${ctx.t('tiene')} ${destinatario.rep} ${ctx.t('puntos de reputación ahora, cortesía de')} <a href="tg://user?id=${from_id}">${remitente.nick}</a>`
+      return ctx.replyWithHTML(text)
     }
   }
 })

@@ -57,6 +57,8 @@
     "Debes responder un mensaje o de lo contrario no funcionará": "You must reply to a message or it won't work",
     "ha intentado hacer trampas... \n<em>qué idiota</em>": "tried to cheat... \n<em>what a moron</em>",
     "<a href=\"tg://user?id={{reply_id}}\">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href=\"tg://user?id={{from_id}}\">{{rem_nick}}</a>": "<a href=\"tg://user?id={{reply id}}\">{{dest nick}}</a> has {{dest rep}} reputation points now, courtesy of <a href=\"tg://user?id={{from id}}\">{{rem nick}}</a>",
+    "tiene": "has",
+    "puntos de reputación ahora, cortesía de": "reputation points now, courtesy of",
     "Se ha reiniciado la reputación para todos los usuarios": "Reputation has been reset for all users",
     "Se ha actualizado el registro de {{dest_nick}} con reputación {{dest_rep}}": "{{dest nick}}'s record was updated with {{dest rep}} reputation points",
     "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero": "You don't have enough privileges to run this command or you're doing it wrong.... I'm leaning towards the former",

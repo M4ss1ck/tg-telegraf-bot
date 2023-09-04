@@ -57,6 +57,8 @@
     "Debes responder un mensaje o de lo contrario no funcionará": "Debes responder un mensaje o de lo contrario no funcionará",
     "ha intentado hacer trampas... \n<em>qué idiota</em>": "ha intentado hacer trampas... \n<em>qué idiota</em>",
     "<a href=\"tg://user?id={{reply_id}}\">{{dest_nick}}</a> tiene {{dest_rep}} puntos de reputación ahora, cortesía de <a href=\"tg://user?id={{from_id}}\">{{rem_nick}}</a>": "<a href=\"tg://user?id={{reply id}}\">{{dest nick}}</a> tiene {{dest rep}} puntos de reputación ahora, cortesía de <a href=\"tg://user?id={{from id}}\">{{rem nick}}</a>",
+    "tiene": "tiene",
+    "puntos de reputación ahora, cortesía de": "puntos de reputación ahora, cortesía de",
     "Se ha reiniciado la reputación para todos los usuarios": "Se ha reiniciado la reputación para todos los usuarios",
     "Se ha actualizado el registro de {{dest_nick}} con reputación {{dest_rep}}": "Se ha actualizado el registro de {{dest nick}} con reputación {{dest rep}}",
     "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero": "No tienes suficientes privilegios para ejecutar este comando o lo estás haciendo mal... Me inclino por lo primero",
