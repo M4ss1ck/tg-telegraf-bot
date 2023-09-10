@@ -26,8 +26,8 @@ const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN ?? '')
 
 bot
   .use(session())
-  .use(i18n)
   .use(createUser)
+  .use(i18n)
   .use(admin)
   .use(ban)
   .use(actions)
