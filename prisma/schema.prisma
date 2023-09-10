@@ -17,6 +17,7 @@ model Usuario {
   nick  String
   fecha DateTime
   rango String?
+  lang  String   @default("es")
 }
 
 model Filtro {
