@@ -7,6 +7,7 @@ export interface User {
     rep: number
     nick: string
     fecha: Date
+    lang: String
 }
 
 export { };
