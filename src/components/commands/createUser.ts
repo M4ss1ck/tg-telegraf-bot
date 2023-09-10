@@ -6,7 +6,7 @@ const createUser = new Composer()
 createUser.use(async (ctx, next) => {
   if (
     ctx.from?.id
-        && ctx.from?.id.toString() !== global.USUARIOS[ctx.from?.id.toString()]?.tg_id
+    && !global.USUARIOS[ctx.from.id.toString()]
   ) {
     global.USUARIOS[ctx.from.id.toString()] = await prisma.usuario.upsert({
       where: {
@@ -17,6 +17,7 @@ createUser.use(async (ctx, next) => {
         rep: 0,
         nick: ctx.from.first_name,
         fecha: new Date(),
+        lang: ctx.from.language_code ?? 'es',
       },
       update: {},
     })
