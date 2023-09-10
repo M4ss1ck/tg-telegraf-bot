@@ -18,3 +18,22 @@ export const getUsers = async () => {
   )
   return userObject
 }
+
+export const updateUser = async (user: User) => {
+  try {
+    await prisma.usuario.upsert({
+      where: {
+        tg_id: user.tg_id
+      },
+      update: {
+        ...user,
+      },
+      create: {
+        ...user
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    return false
+  }
+}
