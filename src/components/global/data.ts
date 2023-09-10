@@ -32,6 +32,8 @@ export const updateUser = async (user: User) => {
         ...user
       }
     })
+    global.USUARIOS = await getUsers()
+    return true
   } catch (error) {
     console.log(error)
     return false
