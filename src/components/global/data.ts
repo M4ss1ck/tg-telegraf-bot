@@ -9,6 +9,7 @@ export const getUsers = async () => {
       rep: true,
       nick: true,
       fecha: true,
+      lang: true,
     },
   })
   const userObject: Record<string, User> = users.reduce(
