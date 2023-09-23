@@ -1,4 +1,5 @@
 import { Composer } from 'telegraf'
+import { toHTML } from "@telegraf/entity"
 import { prisma } from '../db/prisma.js'
 import type { MyContext } from '../../interfaces.js'
 
@@ -97,82 +98,36 @@ filtros.command(['filters', 'filtros'], async (ctx) => {
 
 filtros.on('message', async (ctx) => {
   const chatId = ctx.chat.id.toString() ?? 'global'
-  // get filter for that specific chat
+  // get filters for that specific chat
   const filters = await prisma.filtro.findMany({
     where: {
       chat: chatId,
     },
   })
 
-  filters.length > 0
-    && filters.some((filter) => {
+  for (const filter of filters) {
+    try {
       const regex = new RegExp(`^${filter.filtro}$`, 'i')
-      if (
-        ('text' in ctx.message && ctx.message.text.match(regex))
-        || ('caption' in ctx.message && ctx.message.caption?.match(regex))
-      ) {
+      if (('text' in ctx.message && ctx.message.text.match(regex))
+        || ('caption' in ctx.message && ctx.message.caption?.match(regex))) {
         const respuesta = JSON.parse(filter.respuesta)
-        const caption = respuesta.caption ?? null
+        // const caption = respuesta.caption ?? null
         const markup = respuesta.reply_markup ?? null
         const replyToId = ctx.message.reply_to_message ? ctx.message.reply_to_message.message_id : ctx.message.message_id
+        const html = toHTML(respuesta)
 
-        console.log(respuesta)
         if (filter.tipo === 'text') {
-          const entities = respuesta.entities as any[] || []
-          // console.log('Entities:\n', entities)
-          let texto_final = respuesta.text
-          // FIXME: add the right type
-          entities.forEach((entity: any) => {
-            const { offset, length, type } = entity
-            let tag
-            switch (type) {
-              case 'text_link':
-                tag = 'a'
-                break
-              case 'bold':
-                tag = 'b'
-                break
-              case 'italic':
-                tag = 'i'
-                break
-              case 'code':
-                tag = 'code'
-                break
-              case 'pre':
-                tag = 'pre'
-                break
-              case 'text_mention':
-                tag = 'a'
-                break
-              case 'strikethrough':
-                tag = 's'
-                break
-              case 'underline':
-                tag = 'u'
-                break
-              default:
-                tag = 'i'
-                break
-            }
-            console.log('Tag ', tag)
-            texto_final = texto_final.replace(
-              respuesta.text.substr(offset, length),
-              `<${tag}${entity.url ? ` href="${entity.url}"` : ''
-              }>${respuesta.text.substr(offset, length)}</${tag}>`,
-            )
-          })
-
-          ctx.replyWithHTML(texto_final, {
+          return ctx.replyWithHTML(html, {
             reply_to_message_id: replyToId,
             reply_markup: markup,
           })
         }
         else if (filter.tipo === 'photo') {
-          ctx
+          return ctx
             .replyWithPhoto(
               respuesta.photo[respuesta.photo.length - 1].file_id,
               {
-                caption,
+                caption: html,
                 reply_to_message_id: replyToId,
                 reply_markup: markup,
               },
@@ -180,7 +135,7 @@ filtros.on('message', async (ctx) => {
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
         else if (filter.tipo === 'sticker') {
-          ctx
+          return ctx
             .replyWithSticker(respuesta.sticker.file_id, {
               reply_to_message_id: replyToId,
               reply_markup: markup,
@@ -188,45 +143,46 @@ filtros.on('message', async (ctx) => {
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
         else if (filter.tipo === 'voice') {
-          ctx
+          return ctx
             .replyWithVoice(respuesta.voice.file_id, {
-              caption,
+              caption: html,
               reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
         else if (filter.tipo === 'video') {
-          ctx
+          return ctx
             .replyWithVideo(respuesta.video.file_id, {
-              caption,
+              caption: html,
               reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
         else if (filter.tipo === 'audio') {
-          ctx
+          return ctx
             .replyWithAudio(respuesta.audio.file_id, {
-              caption,
+              caption: html,
               reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
         else {
-          ctx
+          return ctx
             .replyWithDocument(respuesta.document.file_id, {
-              caption,
+              caption: html,
               reply_to_message_id: replyToId,
               reply_markup: markup,
             })
             .catch(err => ctx.reply(JSON.stringify(err)))
         }
-        return true
       }
-      return false
-    })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 })
 
 export default filtros

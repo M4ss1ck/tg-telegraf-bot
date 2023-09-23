@@ -8,6 +8,9 @@ dependencies:
   '@prisma/client':
     specifier: ^5.2.0
     version: 5.2.0(prisma@5.2.0)
+  '@telegraf/entity':
+    specifier: ^0.4.0
+    version: 0.4.0
   axios:
     specifier: ^0.25.0
     version: 0.25.0
@@ -1041,6 +1044,16 @@ packages:
   /@prisma/engines@5.2.0:
     resolution: {integrity: sha512-dT7FOLUCdZmq+AunLqB1Iz+ZH/IIS1Fz2THmKZQ6aFONrQD/BQ5ecJ7g2wGS2OgyUFf4OaLam6/bxmgdOBDqig==}
     requiresBuild: true
+
+  /@telegraf/entity@0.4.0:
+    resolution: {integrity: sha512-F0E1RS3lx37BmaVvWXdiUfyhrbv5oXKCS0iGFzeVKNGebm25uzBNKv33ZWxfU7cxs7WHwhf/d5c3pHjLJmZIKw==}
+    dependencies:
+      '@telegraf/types': 6.9.1
+    dev: false
+
+  /@telegraf/types@6.9.1:
+    resolution: {integrity: sha512-bzqwhicZq401T0e09tu8b1KvGfJObPmzKU/iKCT5V466AsAZZWQrBYQ5edbmD1VZuHLEwopoOVY5wPP4HaLtug==}
+    dev: false
 
   /@types/json-schema@7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}

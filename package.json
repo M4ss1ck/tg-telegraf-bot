@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
+    "@telegraf/entity": "^0.4.0",
     "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^10.0.0",
