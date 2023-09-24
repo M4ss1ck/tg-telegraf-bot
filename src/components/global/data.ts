@@ -39,3 +39,24 @@ export const updateUser = async (user: User) => {
     return false
   }
 }
+
+export const saveResultsInDB = async (results: any, query: string) => {
+  try {
+    const parsedResults = JSON.stringify(results)
+    await prisma.dictionary.upsert({
+      where: {
+        query
+      },
+      create: {
+        query,
+        response: parsedResults,
+      },
+      update: {
+        response: parsedResults,
+        date: new Date(),
+      }
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
