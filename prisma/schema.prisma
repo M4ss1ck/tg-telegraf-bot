@@ -44,3 +44,10 @@ model Option {
   encuestaId String
   encuesta   Encuesta @relation(fields: [encuestaId], references: [id], onDelete: Cascade)
 }
+
+model Dictionary {
+  id       String   @id @default(uuid())
+  query    String   @unique
+  response String
+  date     DateTime @default(now())
+}
