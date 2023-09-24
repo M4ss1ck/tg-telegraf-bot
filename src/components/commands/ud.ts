@@ -20,7 +20,7 @@ urban.command('ud', async (ctx) => {
       console.log(e)
       return []
     })
-    if (!results) {
+    if (!results || results.length === 0) {
       results = await search(query).then(async (res: any) => {
         await saveResultsInDB(res.list, query)
         return res.list
@@ -89,7 +89,7 @@ urban.action(/^ud_(\d+)_(.+)/i, async ctx => {
         console.log(e)
         return []
       })
-      if (!results) {
+      if (!results || results.length === 0) {
         results = await search(query).then(async (res: any) => {
           await saveResultsInDB(res.list, query)
           return res.list
