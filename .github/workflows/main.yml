@@ -52,4 +52,6 @@ jobs:
             node -v
             npm -v
             nvm use 18
+            npm i
+            npm run seed
             npm run build
