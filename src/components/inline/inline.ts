@@ -43,8 +43,8 @@ inline.on('inline_query', async (ctx) => {
     .catch(e => console.log('ERROR WITH INLINE QUERY\n', e))
 })
 
-inline.on('chosen_inline_result', ({ chosenInlineResult }) => {
-  console.log('Chosen inline result:\n', chosenInlineResult)
-})
+// inline.on('chosen_inline_result', ({ chosenInlineResult }) => {
+//   console.log('Chosen inline result:\n', chosenInlineResult)
+// })
 
 export default inline
