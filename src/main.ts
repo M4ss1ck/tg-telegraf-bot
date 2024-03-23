@@ -10,6 +10,7 @@ import replacer from './components/commands/replace.js'
 import polls from './components/commands/polls.js'
 import admin from './components/commands/admin.js'
 import createUser from './components/commands/createUser.js'
+import logger from './components/middleware/commandLogger.js'
 // import anime from './components/commands/anime.js'
 import ban from './components/commands/ban.js'
 import qr from './components/commands/qr.js'
@@ -27,6 +28,7 @@ const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN ?? '')
 bot
   .use(session())
   .use(createUser)
+  .use(logger)
   .use(i18n)
   .use(admin)
   .use(ban)
