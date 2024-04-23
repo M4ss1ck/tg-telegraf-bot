@@ -85,7 +85,6 @@ commands.command('info', async (ctx) => {
   if (ctx.message.reply_to_message) {
     const msgInfo = JSON.stringify(ctx.message.reply_to_message, null, 2)
     const text = `<b>${ctx.t('Información del mensaje')}:</b>\n${msgInfo}`
-    console.log(text)
     if (text.length < 4096) {
       ctx.replyWithHTML(text, {
         reply_to_message_id: ctx.message.reply_to_message.message_id,
@@ -102,9 +101,22 @@ commands.command('info', async (ctx) => {
     }
   }
   else {
-    ctx.replyWithHTML(
-      ctx.t('<code>/info</code> se usa respondiendo un mensaje\. Tal vez prefieras usar /me'),
-    )
+    const msgInfo = JSON.stringify(ctx.message, null, 2)
+    const text = `<b>${ctx.t('Información del mensaje')}:</b>\n${msgInfo}`
+    if (text.length < 4096) {
+      ctx.replyWithHTML(text, {
+        reply_to_message_id: ctx.message.message_id,
+      })
+    }
+    else {
+      const chunks = Math.ceil(text.length / 4096)
+      for (let i = 0; i < chunks; i++) {
+        const index = 4096 * i
+        await ctx.replyWithHTML(text.substring(index, index + 4096), {
+          reply_to_message_id: ctx.message.message_id,
+        }).catch(console.log)
+      }
+    }
   }
 })
 
