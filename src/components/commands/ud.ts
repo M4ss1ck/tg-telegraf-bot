@@ -29,6 +29,9 @@ urban.command('ud', async (ctx) => {
         return []
       })
     }
+    if (!results || results.length === 0) {
+      return ctx.replyWithHTML(ctx.t('No results found!')).catch(console.error)
+    }
     // const results = res.list as any[]
     const lastPage = results.length - 1 || 1
     // save results in local db

@@ -65,6 +65,7 @@
     "El nick de <b>{{name}}</b> será {{nick}}": "<b>{{name}}</b>'s nick will be {{nick}}",
     "[/nick] Hubo un error agregando un usuario": "[/nick] There was an error adding the user",
     "Results for": "Results for",
+    "No results found!": "No results found!",
     "<b>Error with request!</b> Please try again.": "<b>Error with request!</b> Please try again.",
     "Tu porcentaje de {{query}}": "Your {{query}} percentage",
     "La efectividad está probada científicamente": "The effectiveness is scientifically proven",
