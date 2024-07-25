@@ -49,6 +49,8 @@ bot
 bot.launch()
 console.log('BOT INICIADO')
 
+bot.catch(console.error)
+
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
