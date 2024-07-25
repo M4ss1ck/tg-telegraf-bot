@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url'
 import path from 'path'
+import fs from 'fs'
 import { Composer, Markup } from 'telegraf'
 import Twig from 'twig'
 import { Parser } from 'expr-eval'
@@ -128,20 +129,22 @@ commands.command(['jaja', 'jajaja', 'porn', 'hahaha', 'haha'], (ctx) => {
   else if (ctx.message.reply_to_message.from?.id.toString() === my_id) {
     ctx
       .replyWithVoice(
-        { source: './audio/risas.ogg' },
+        { source: fs.readFileSync(path.join(__dirname, '../../../audio/risas.ogg')) },
         {
           reply_to_message_id: ctx.message.message_id,
         },
       )
       .then(() => ctx.reply(ctx.t('Yo tú no lo vuelvo a intentar')!))
+      .catch(console.log)
   }
   else {
     ctx.replyWithVoice(
-      { source: './audio/risas.ogg' },
+      { source: fs.readFileSync(path.join(__dirname, '../../../audio/risas.ogg')) },
       {
         reply_to_message_id: ctx.message.reply_to_message.message_id,
       },
     )
+      .catch(console.log)
   }
 })
 
