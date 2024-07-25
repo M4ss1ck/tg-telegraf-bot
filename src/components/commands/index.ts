@@ -81,7 +81,6 @@ commands.command('me', async (ctx) => {
 })
 
 commands.command('info', async (ctx) => {
-  // console.log(ctx);
   if (ctx.message.reply_to_message) {
     const msgInfo = JSON.stringify(ctx.message.reply_to_message, null, 2)
     const text = `<b>${ctx.t('Información del mensaje')}:</b>\n${msgInfo}`
@@ -172,7 +171,6 @@ commands.command(['c', 'calc'], (ctx) => {
     try {
       const parsedText = math.replace(/×/g, '*').replace(/[÷:]/g, '/')
       const result = parser.parse(parsedText).simplify()
-      console.log(ctx.t('El resultado de {{math}} es {{result}}', { math, result }))
       ctx.replyWithHTML(`<code>${result}</code>`, {
         reply_to_message_id: ctx.message.message_id,
       })
@@ -198,7 +196,7 @@ commands.command(['start', 'jelou'], (ctx) => {
 
 commands.command(['ayuda', 'help'], (ctx) => {
   ctx.replyWithHTML(
-    ctx.t('<b>Comandos disponibles\:</b>\n<code>/ayuda</code> --- este comando 🚶‍♂️\n<code>/calc</code> o <code>/c</code> --- calcular una operación matemática\n<code>/grupo</code> o <code>/promo</code> --- Información sobre la comunidad del bot\n<code>/info</code> --- información sobre el mensaje respondido\n<code>/me</code> --- información sobre el bot y el usuario\n<code>/ud</code> --- buscar palabras o frases en Urban Dictionary\n<code>/nick</code> --- crear/cambiar nick usado por el bot\n<code>/poll</code> --- crear encuestas de más de 10 opciones'),
+    ctx.t('help_msg'),
   )
 })
 
@@ -219,7 +217,6 @@ commands.command('tag', (ctx) => {
   const number
     = text.length > 0 ? text.match(/\d+/g)?.[0] ?? '1' : '1'
   const n = parseInt(number ?? '1') > 20 ? 20 : parseInt(number ?? 1)
-  // console.log(text, number, n);
   const new_victim = ctx.message.reply_to_message && ctx.message.reply_to_message.from
     ? ctx.message.reply_to_message.from.id
     : victim
@@ -277,17 +274,12 @@ commands.command('like', async (ctx) => {
   }
   await ctx.deleteMessage().catch(() => {
     console.log(ctx.t('No se pudo borrar el mensaje'))
-    // const keyboard = Markup.inlineKeyboard([
-    //   [Markup.button.callback("Borrar", "del")],
-    // ]);
-    // ctx.replyWithHTML("No pude borrar el mensaje", keyboard);
   })
 })
 
 commands.command('run', async (ctx) => {
   if (ctx.from.id.toString() === my_id) {
     const text = ctx.message.text.substring(5)
-    console.log(text)
     try {
       const template = Twig.twig({
         data: text,
